@@ -4,15 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AdminUser extends Model
+class AdminUserToken extends Model
 {
-    const STATUS_ENABLE = 1;
-    const STATUS_DISABLE = 0;
-
-    public static $statusMap = [
-        self::STATUS_ENABLE => '正常',
-        self::STATUS_DISABLE => '禁用',
-    ];
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +14,7 @@ class AdminUser extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone'
+        'user_id', 'token', 'expire_time', 'updated_at'
     ];
 
     /**
@@ -29,8 +23,6 @@ class AdminUser extends Model
      * @var array
      */
     protected $hidden = [
-        'password',
+
     ];
-
-
 }
