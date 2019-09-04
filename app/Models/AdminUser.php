@@ -32,5 +32,11 @@ class AdminUser extends Model
         'password',
     ];
 
-
+    /**
+     * 关联管理员登陆token
+     */
+    public function adminUserToken()
+    {
+        $this->hasOne(AdminUserToken::class);
+    }
 }

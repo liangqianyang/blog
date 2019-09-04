@@ -25,4 +25,12 @@ class AdminUserToken extends Model
     protected $hidden = [
 
     ];
+
+    /**
+     * 关联管理员员
+     */
+    public function adminUser()
+    {
+        $this->belongsTo(AdminUser::class);
+    }
 }

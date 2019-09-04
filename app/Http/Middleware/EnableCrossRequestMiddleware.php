@@ -17,7 +17,7 @@ class EnableCrossRequestMiddleware
     {
         $response = $next($request);
         $response->header('Access-Control-Allow-Origin', 'http://localhost:9527');
-        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, Accept, multipart/form-data, application/json');
+        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, x-token, Cookie, Accept, multipart/form-data, application/json');
 //        $response->header('Access-Control-Allow-Headers', '*');
         $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS, DELETE');
         $response->header('Access-Control-Allow-Credentials', 'false');
