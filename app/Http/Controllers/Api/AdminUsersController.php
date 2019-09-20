@@ -10,6 +10,7 @@ use App\Services\AdminUsersService;
 use Illuminate\Support\Facades\DB;
 use Validator;
 use Illuminate\Validation\Rule;
+use App\Handlers\ImageUploadHandler;
 
 class AdminUsersController extends Controller
 {
@@ -47,6 +48,25 @@ class AdminUsersController extends Controller
         return $this->response->array(['code' => 0, 'data' => $users, 'total' => $total, 'message' => 'success']);
     }
 
+    /**
+     * 上传图片
+     * @param Request $request
+     * @param ImageUploadHandler $uploader
+     * @return mixed
+     */
+    public function uploadAvatar(Request $request, ImageUploadHandler $uploader)
+    {
+        if ($request->file) {
+            $result = $uploader->save($request->file, 'avatars', '0');
+            if ($result) {
+                return $this->response->array(['code' => 0, 'path' => $result['path'], 'message' => 'success']);
+            } else {
+                return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'message' => '请选择图片']);
+        }
+    }
 
     /**
      * 获取登陆的用户信息
@@ -158,7 +178,7 @@ class AdminUsersController extends Controller
 
         if ($flag) {
             DB::commit();
-            return $this->response->array(['code' => 0, 'type' => 'success','data'=>$result, 'message' => '更新成功']);
+            return $this->response->array(['code' => 0, 'type' => 'success', 'data' => $result, 'message' => '更新成功']);
         } else {
             DB::rollBack();
             return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);

@@ -21,6 +21,7 @@ $api->version('v1', [
     $api->post('captcha', 'CaptchasController@store')->name('api.captcha.store');//图形验证码
     $api->post('login', 'LoginController@login')->name('api.login');//登陆
     $api->get('logout', 'LoginController@logout')->name('api.logout');//退出登陆
+    $api->post('user/avatar', 'AdminUsersController@uploadAvatar')->name('api.user.avatar');//上传用户头像
     $api->group(['middleware' => 'hasToken'], function ($api) {
         $api->get('nav', 'AdminMenusController@getNav')->name('api.nav');//导航菜单
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
