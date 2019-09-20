@@ -6,16 +6,29 @@ use App\Models\AdminMenu;
 use Illuminate\Http\Request;
 use App\Http\Requests\MenusRequest;
 use Illuminate\Support\Facades\DB;
+use App\Services\MenusService;
 
 class AdminMenusController extends Controller
 {
+    /**
+     * 获取用户对应的导航菜单
+     * @param Request $request
+     * @param MenusService $menusService
+     * @return mixed
+     */
+    public function getNav(Request $request, MenusService $menusService)
+    {
+        $token = $request->header('X-Token');//获取用户token
+        $menus = $menusService->getNav($token);
+        return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
+    }
 
     /**
      * 菜单列表
      * @param Request $request
      * @return mixed
      */
-    public function list(Request $request)
+    public function list(Request $request, MenusService $menusService)
     {
         $name = $request->input('name');
         $status = $request->input('status');
@@ -33,21 +46,27 @@ class AdminMenusController extends Controller
         if ($sort) {
             $sort = explode(" ", $sort);
         } else {
-            $sort = ['id', 'asc'];
+            $sort = ['sort', 'asc'];
         }
 
-        $menus = AdminMenu::query()->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
+        $menus = AdminMenu::query()->select('id','parent_id','name','perms','url','type','icon','sort','status')->where($where)->orderBy($sort[0], $sort[1])
+            ->forPage($page, $limit)->get()->toArray();
+        $menus = $menusService->listToTree($menus);
+        $menus = array_values($menus);
         $total = AdminMenu::query()->where($where)->count();
-        return $this->response->array(['code' => 0, 'data' => $menus, 'total' => $total, 'message' => 'success']);
+        return $this->response->array(['code' => 0, 'data' => array_values($menus), 'total' => $total, 'message' => 'success']);
     }
 
     /**
      * 获取可用的菜单
+     * @param MenusService $menusService
      * @return mixed
      */
-    public function getEnableMenus()
+    public function getEnableMenus(MenusService $menusService)
     {
-        $menus = AdminMenu::query()->where('status', '0')->get();
+        $menus = AdminMenu::query()->select('id','parent_id','name','url','type','icon','sort','status')->where('status','0')->get()->toArray();
+        $menus = $menusService->listToTree($menus);
+        $menus = array_values($menus);
         return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
     }
 
@@ -61,9 +80,9 @@ class AdminMenusController extends Controller
         $params = $request->all();
         $menu = AdminMenu::create($params);
         if ($menu) {
-            return $this->response->array(['code' => 0, 'message' => '保存成功']);
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 0, 'message' => '保存失败']);
+            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -78,6 +97,7 @@ class AdminMenusController extends Controller
         $params = $request->only([
             'id',
             'parent_id',
+            'perms',
             'name',
             'url',
             'type',
@@ -89,9 +109,9 @@ class AdminMenusController extends Controller
         $menu = $adminMenu->where('id', $params['id'])->update($params);
 
         if ($menu) {
-            return $this->response->array(['code' => 0, 'message' => '更新成功']);
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
-            return $this->response->array(['code' => 0, 'message' => '更新失败']);
+            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -115,10 +135,10 @@ class AdminMenusController extends Controller
 
         if ($flag) {
             DB::commit();
-            return $this->response->array(['code' => 0, 'data' => $ids, 'message' => '删除成功']);
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 001, 'data' => $ids, 'message' => '删除失败']);
+            return $this->response->array(['code' => 001, 'type' => 'error', 'message' => '删除失败']);
         }
     }
 }

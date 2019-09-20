@@ -24,7 +24,7 @@ class AdminMenu extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'parent_id', 'name', 'url','type','icon','sort','status'
+        'name', 'parent_id', 'name','perms', 'url','type','icon','sort','status'
     ];
 
     /**

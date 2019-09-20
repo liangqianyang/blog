@@ -31,6 +31,6 @@ class AdminUserToken extends Model
      */
     public function adminUser()
     {
-        $this->belongsTo(AdminUser::class);
+        return $this->belongsTo(AdminUser::class,'user_id');
     }
 }

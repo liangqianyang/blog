@@ -16,7 +16,9 @@ class CreateAdminUsersTable extends Migration
     {
         Schema::create('admin_users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name', 100)->nullable(false)->index('index_name')->comment('管理员名称');
+            $table->string('username', 100)->nullable(false)->index('index_name')->comment('管理员名称');
+            $table->string('real_name', 100)->nullable(true)->comment('真实姓名');
+            $table->string('avatar', 255)->nullable(true)->comment('管理员头像');
             $table->string('password', 100)->nullable(false)->comment('密码');
             $table->string('email', 100)->nullable(true)->comment('邮箱');
             $table->bigInteger('phone')->nullable(false)->index('index_phone')->comment('手机号码');

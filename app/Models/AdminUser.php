@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminUser extends Model
 {
-    const STATUS_ENABLE = 1;
-    const STATUS_DISABLE = 0;
+    const STATUS_ENABLE = 0;
+    const STATUS_DISABLE = 9;
 
     public static $statusMap = [
         self::STATUS_ENABLE => '正常',
@@ -20,7 +20,7 @@ class AdminUser extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone'
+        'username','real_name','avatar', 'email', 'password', 'phone','status','create_user_id'
     ];
 
     /**
@@ -37,6 +37,14 @@ class AdminUser extends Model
      */
     public function adminUserToken()
     {
-        $this->hasOne(AdminUserToken::class);
+        return $this->hasOne(AdminUserToken::class, 'user_id');
+    }
+
+    /**
+     * 关联角色
+     */
+    public function roles()
+    {
+        return $this->hasOne(AdminRoleUser::class, 'user_id', 'id');
     }
 }
