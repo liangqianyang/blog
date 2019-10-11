@@ -27,6 +27,7 @@ class LoginController extends Controller
         $name = $request->input('username');
         $password = $request->input('password');
         if ($token = $loginService->doLogin($name, $password)) {
+            writeLog($request, $name . '登陆', [], '0',$token);
             return $this->response->array(['code' => 0, 'data' => ['token' => $token], 'message' => '登陆成功']);
         } else {
             return $this->response->array(['code' => 1001, 'message' => '用户名或密码错误']);

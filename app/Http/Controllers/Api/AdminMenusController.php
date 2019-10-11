@@ -33,8 +33,6 @@ class AdminMenusController extends Controller
         $name = $request->input('name');
         $status = $request->input('status');
         $sort = $request->input('sort');
-        $page = $request->input('page') ?? 1;
-        $limit = $request->input('limit') ?? 20;
         $where = [];//查询条件
         if ($name) {
             $where[] = ['name', 'like', "%" . $name . "%"];
@@ -50,7 +48,7 @@ class AdminMenusController extends Controller
         }
 
         $menus = AdminMenu::query()->select('id','parent_id','name','perms','url','type','icon','sort','status')->where($where)->orderBy($sort[0], $sort[1])
-            ->forPage($page, $limit)->get()->toArray();
+            ->get()->toArray();
         $menus = $menusService->listToTree($menus);
         $menus = array_values($menus);
         $total = AdminMenu::query()->where($where)->count();
@@ -80,6 +78,7 @@ class AdminMenusController extends Controller
         $params = $request->all();
         $menu = AdminMenu::create($params);
         if ($menu) {
+            writeLog($request, '新增菜单',$params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
@@ -109,6 +108,7 @@ class AdminMenusController extends Controller
         $menu = $adminMenu->where('id', $params['id'])->update($params);
 
         if ($menu) {
+            writeLog($request, '更新菜单',$params,  '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
             return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
@@ -135,6 +135,7 @@ class AdminMenusController extends Controller
 
         if ($flag) {
             DB::commit();
+            writeLog($request, '删除菜单',$ids,  '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
         } else {
             DB::rollBack();

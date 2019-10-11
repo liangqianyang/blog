@@ -94,7 +94,7 @@ class MenusService
     public function checkAuth($token, $route)
     {
         $token_info = AdminUserToken::query()->where('token', $token)->first();
-        $perms = [];
+        $auths = [];
         if ($token) {
             if ($token_info->user_id === 1) {
                 $perms = AdminMenu::where('status', '0')->pluck('perms')->toArray();
@@ -106,7 +106,18 @@ class MenusService
                     $perms = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->pluck('perms')->toArray();
                 }
             }
-            if (in_array($route, $perms)) {
+            if ($perms) {
+                foreach ($perms as $perm) {
+                    $auth = explode(',', $perm);
+                    array_push($auths, $auth);
+                }
+            }
+
+            $auths = reduce($auths);
+
+            $auths = array_values((array_unique($auths)));
+
+            if (in_array($route, $auths)) {
                 return true;
             } else {
                 return false;

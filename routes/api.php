@@ -28,6 +28,7 @@ $api->version('v1', [
         $api->get('menu/enable', 'AdminMenusController@getEnableMenus')->name('api.menu.enable');//可用的菜单
         $api->get('role/enable', 'AdminRolesController@getEnableRoles')->name('api.role.enable');//可用的角色
         $api->get('role/info', 'AdminRolesController@getRoleInfo')->name('api.role.info');//角色详情
+        $api->get('log', 'SysLogController@list')->name('api.log.list');//系统日志列表
         $api->group(['middleware' => 'checkAuth'], function ($api) {
             $api->get('menu', 'AdminMenusController@list')->name('api.menu.list');//菜单列表
             $api->post('menu', 'AdminMenusController@store')->name('api.menu.store');//保存菜单

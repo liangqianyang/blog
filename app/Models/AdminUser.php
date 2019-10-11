@@ -47,4 +47,13 @@ class AdminUser extends Model
     {
         return $this->hasOne(AdminRoleUser::class, 'user_id', 'id');
     }
+
+    /**
+     * 关联系统日志表
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function sysLog()
+    {
+        return $this->hasOne(SysLog::class, 'user_id');
+    }
 }

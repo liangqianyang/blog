@@ -57,7 +57,7 @@ class AdminUsersController extends Controller
     public function uploadAvatar(Request $request, ImageUploadHandler $uploader)
     {
         if ($request->file) {
-            $result = $uploader->save($request->file, 'avatars', '0');
+            $result = $uploader->save($request->file, 'avatars', mt_rand(0,10));
             if ($result) {
                 return $this->response->array(['code' => 0, 'path' => $result['path'], 'message' => 'success']);
             } else {
@@ -126,6 +126,7 @@ class AdminUsersController extends Controller
         }
         if ($flag) {
             DB::commit();
+            writeLog($request, '新增管理',$params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
@@ -178,6 +179,7 @@ class AdminUsersController extends Controller
 
         if ($flag) {
             DB::commit();
+            writeLog($request, '更新管理员信息',$params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'data' => $result, 'message' => '更新成功']);
         } else {
             DB::rollBack();
@@ -205,6 +207,7 @@ class AdminUsersController extends Controller
 
         if ($flag) {
             DB::commit();
+            writeLog($request, '删除管理员',$ids, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
         } else {
             DB::rollBack();

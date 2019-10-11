@@ -97,6 +97,7 @@ class AdminRolesController extends Controller
         }
         if ($flag) {
             DB::commit();
+            writeLog($request, '新增角色',$params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
@@ -145,6 +146,7 @@ class AdminRolesController extends Controller
         }
         if ($flag) {
             DB::commit();
+            writeLog($request, '更新角色',$params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
             DB::rollBack();
@@ -172,6 +174,7 @@ class AdminRolesController extends Controller
 
         if ($flag) {
             DB::commit();
+            writeLog($request, '删除角色',$ids, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
         } else {
             DB::rollBack();
