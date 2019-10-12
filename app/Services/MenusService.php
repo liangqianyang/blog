@@ -17,44 +17,6 @@ class MenusService
 {
 
     /**
-     * 生成树形数据
-     * @param $list
-     * @param string $pk
-     * @param string $pid
-     * @param string $child
-     * @param int $root
-     * @return array
-     */
-    function listToTree($list, $pk = 'id', $pid = 'parent_id', $child = 'children', $root = 0)
-    {
-        $tree = array();
-        if (is_array($list)) {
-            $refer = array();
-            foreach ($list as $key => $data) {
-                $refer[$data[$pk]] = &$list[$key];
-            }
-
-            foreach ($list as $key => $data) {
-                // 判断是否存在parent
-                $parentId = $data[$pid];
-
-                if ($root == $parentId) {
-                    $tree[$data[$pk]] = &$list[$key];
-                } else {
-                    if (isset($refer[$parentId])) {
-                        $parent = &$refer[$parentId];
-                        $parent[$child][$data[$pk]] = &$list[$key];
-                        $parent[$child] = array_values($parent[$child]);
-                    }
-                }
-            }
-        }
-
-        return $tree;
-    }
-
-
-    /**
      * 根据用户获取对应的权限菜单
      * @param $token
      * @return AdminMenu[]|array|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
@@ -81,7 +43,7 @@ class MenusService
                 }
             }
         }
-        $menus = $this->listToTree($menus);
+        $menus = list_to_tree($menus);
         return $menus;
     }
 

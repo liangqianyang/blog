@@ -49,7 +49,7 @@ class AdminMenusController extends Controller
 
         $menus = AdminMenu::query()->select('id','parent_id','name','perms','url','type','icon','sort','status')->where($where)->orderBy($sort[0], $sort[1])
             ->get()->toArray();
-        $menus = $menusService->listToTree($menus);
+        $menus =list_to_tree($menus);
         $menus = array_values($menus);
         $total = AdminMenu::query()->where($where)->count();
         return $this->response->array(['code' => 0, 'data' => array_values($menus), 'total' => $total, 'message' => 'success']);
@@ -62,8 +62,9 @@ class AdminMenusController extends Controller
      */
     public function getEnableMenus(MenusService $menusService)
     {
-        $menus = AdminMenu::query()->select('id','parent_id','name','url','type','icon','sort','status')->where('status','0')->get()->toArray();
-        $menus = $menusService->listToTree($menus);
+        $menus = AdminMenu::query()->select('id','parent_id','name','url','type','icon','sort','status')
+            ->where('status','0')->where('type', '<>', '2')->orderBy('sort','asc')->get()->toArray();
+        $menus = list_to_tree($menus);
         $menus = array_values($menus);
         return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
     }

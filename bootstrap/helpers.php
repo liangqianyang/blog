@@ -18,6 +18,70 @@ function route_class()
 }
 
 /**
+ * 根据数组中的某个键值大小进行排序，仅支持二维数组
+ *
+ * @param array $array 排序数组
+ * @param string $key 键值
+ * @param bool $asc 默认正序
+ * @return array 排序后数组
+ */
+function array_sort_by_key(array $array, $key, $asc = true)
+{
+    $result = array();
+    // 整理出准备排序的数组
+    foreach ( $array as $k => &$v ) {
+        $values[$k] = isset($v[$key]) ? $v[$key] : '';
+    }
+    unset($v);
+    // 对需要排序键值进行排序
+    $asc ? asort($values) : arsort($values);
+    // 重新排列原有数组
+    foreach ( $values as $k => $v ) {
+        $result[$k] = $array[$k];
+    }
+
+    return $result;
+}
+
+
+/**
+ * 生成树形数据
+ * @param $list
+ * @param string $pk
+ * @param string $pid
+ * @param string $child
+ * @param int $root
+ * @return array
+ */
+function list_to_tree($list, $pk = 'id', $pid = 'parent_id', $child = 'children', $root = 0)
+{
+    $tree = array();
+    if (is_array($list)) {
+        $refer = array();
+        foreach ($list as $key => $data) {
+            $refer[$data[$pk]] = &$list[$key];
+        }
+
+        foreach ($list as $key => $data) {
+            // 判断是否存在parent
+            $parentId = $data[$pid];
+
+            if ($root == $parentId) {
+                $tree[$data[$pk]] = &$list[$key];
+            } else {
+                if (isset($refer[$parentId])) {
+                    $parent = &$refer[$parentId];
+                    $parent[$child][$data[$pk]] = &$list[$key];
+                    $parent[$child] = array_values($parent[$child]);
+                }
+            }
+        }
+    }
+
+    return $tree;
+}
+
+/**
  * 把多维数组转为一维数组
  * @param $array
  * @return array
@@ -202,7 +266,7 @@ function random_str($length)
  * @param string $key 对称加密密钥
  * @return string
  */
-function encryptData($str, $key)
+function encrypt_data($str, $key)
 {
     $iv_len = openssl_cipher_iv_length('DES-ECB');    // 获取密码iv长度
     $iv = openssl_random_pseudo_bytes($iv_len);        // 生成一个伪随机字节串
@@ -216,7 +280,7 @@ function encryptData($str, $key)
  * @param string $key 对称加密密钥
  * @return bool|string
  */
-function decryptData($str, $key)
+function decrypt_data($str, $key)
 {
     $str = hex2bin(strtolower($str));
     $iv_len = openssl_cipher_iv_length('DES-ECB');    // 获取密码iv长度

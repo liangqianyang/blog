@@ -27,6 +27,7 @@ $api->version('v1', [
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
         $api->get('menu/enable', 'AdminMenusController@getEnableMenus')->name('api.menu.enable');//可用的菜单
         $api->get('role/enable', 'AdminRolesController@getEnableRoles')->name('api.role.enable');//可用的角色
+        $api->get('category/enable', 'CategoryController@getEnableCategory')->name('api.category.enable');//可用的类目
         $api->get('role/info', 'AdminRolesController@getRoleInfo')->name('api.role.info');//角色详情
         $api->get('log', 'SysLogController@list')->name('api.log.list');//系统日志列表
         $api->group(['middleware' => 'checkAuth'], function ($api) {
@@ -42,6 +43,10 @@ $api->version('v1', [
             $api->post('user', 'AdminUsersController@store')->name('api.user.store');//保存管理员信息
             $api->put('user', 'AdminUsersController@update')->name('api.user.update');//更新管理员信息
             $api->delete('user', 'AdminUsersController@destroy')->name('api.user.destroy');//删除管理员信息
+            $api->get('category', 'CategoryController@list')->name('api.category.list');//分类列表
+            $api->post('category', 'CategoryController@store')->name('api.category.store');//保存分类信息
+            $api->put('category', 'CategoryController@update')->name('api.category.update');//更新分类信息
+            $api->delete('category', 'CategoryController@destroy')->name('api.category.destroy');//删除分类
         });
     });
 
