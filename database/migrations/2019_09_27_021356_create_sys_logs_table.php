@@ -20,7 +20,7 @@ class CreateSysLogsTable extends Migration
             $table->string('username',100)->nullable(false)->comment('管理员名称');
             $table->string('ip',100)->nullable(false)->comment('ip地址');
             $table->string('description',255)->nullable(false)->comment('操作描述');
-            $table->string('params',500)->nullable(true)->comment('参数');
+            $table->text('params')->nullable(true)->comment('参数');
             $table->enum('status',['0','9'])->nullable(false)->comment('状态');
             $table->timestamps();
         });

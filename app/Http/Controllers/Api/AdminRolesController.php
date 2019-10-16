@@ -86,10 +86,12 @@ class AdminRolesController extends Controller
         $flag = true;
         $role = AdminRole::create($params);
         if ($role) {
-            foreach ($params['rule_ids'] as $menu) {
-                $result = $role->menus()->create(['menu_id' => $menu]);
-                if (!$result) {
-                    $flag = false;
+            if (isset($params['rule_ids'])) {
+                foreach ($params['rule_ids'] as $menu) {
+                    $result = $role->menus()->create(['menu_id' => $menu]);
+                    if (!$result) {
+                        $flag = false;
+                    }
                 }
             }
         } else {
@@ -97,11 +99,11 @@ class AdminRolesController extends Controller
         }
         if ($flag) {
             DB::commit();
-            writeLog($request, '新增角色',$params, '0');
+            writeLog($request, '新增角色', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -116,10 +118,11 @@ class AdminRolesController extends Controller
         $params = $request->all();
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
+        $role_info = $adminRole->where('id', $params['id'])->first();
         Validator::make($params, [
             'name' => [
                 'required',
-                Rule::unique('admin_roles')->ignore($user->user->id),
+                Rule::unique('admin_roles')->ignore($role_info->id),
             ],
         ]);
         DB::beginTransaction();
@@ -133,12 +136,14 @@ class AdminRolesController extends Controller
         ];
         $result = $adminRole->where('id', $params['id'])->update($data);
         if ($result) {
-            $role = $adminRole->where('id', $params['id'])->first();
-            AdminRoleMenu::where('role_id', $params['id'])->delete();
-            foreach ($params['rule_ids'] as $menu) {
-                $result = $role->menus()->create(['menu_id' => $menu]);
-                if (!$result) {
-                    $flag = false;
+            if (isset($params['rule_ids'])) {
+                $role = $adminRole->where('id', $params['id'])->first();
+                AdminRoleMenu::where('role_id', $params['id'])->delete();
+                foreach ($params['rule_ids'] as $menu) {
+                    $result = $role->menus()->create(['menu_id' => $menu]);
+                    if (!$result) {
+                        $flag = false;
+                    }
                 }
             }
         } else {
@@ -146,11 +151,11 @@ class AdminRolesController extends Controller
         }
         if ($flag) {
             DB::commit();
-            writeLog($request, '更新角色',$params, '0');
+            writeLog($request, '更新角色', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -163,22 +168,28 @@ class AdminRolesController extends Controller
     public function destroy(Request $request, AdminRole $adminRole)
     {
         $ids = $request->input('ids');
-        DB::beginTransaction();
         $flag = true;
-        foreach ($ids as $id) {
-            $result = $adminRole->where('id', $id)->update(['status' => '9']);
-            if (!$result) {
-                $flag = false;
+        if (isset($ids)) {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $result = $adminRole->where('id', $id)->update(['status' => '9']);
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
             }
+
+            if ($flag) {
+                DB::commit();
+                writeLog($request, '删除角色', $ids, '0');
+                return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            } else {
+                DB::rollBack();
+                return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '删除失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '缺失参数']);
         }
 
-        if ($flag) {
-            DB::commit();
-            writeLog($request, '删除角色',$ids, '0');
-            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
-        } else {
-            DB::rollBack();
-            return $this->response->array(['code' => 001,'type' => 'error', 'message' => '删除失败']);
-        }
     }
 }

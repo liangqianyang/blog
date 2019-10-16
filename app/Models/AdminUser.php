@@ -45,7 +45,7 @@ class AdminUser extends Model
      */
     public function roles()
     {
-        return $this->hasOne(AdminRoleUser::class, 'user_id', 'id');
+        return $this->hasMany(AdminRoleUser::class, 'user_id', 'id');
     }
 
     /**

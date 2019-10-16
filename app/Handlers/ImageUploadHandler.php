@@ -15,7 +15,14 @@ class ImageUploadHandler
     // 只允许以下后缀名的图片文件上传
     protected $allowed_ext = ["png", "jpg", "gif", 'jpeg'];
 
-    public function save($file, $folder, $file_prefix)
+    /**
+     * @param $file 文件
+     * @param $folder 存储目录
+     * @param $file_prefix 文件名前缀
+     * @param bool $is_absolute_path 是否返回相对路径
+     * @return array|bool
+     */
+    public function save($file, $folder, $file_prefix, $is_absolute_path = false)
     {
         // 构建存储的文件夹规则，值如：uploads/images/avatars/201709/21/
         // 文件夹切割能让查找效率更高。
@@ -40,8 +47,15 @@ class ImageUploadHandler
         // 将图片移动到我们的目标存储路径中
         $file->move($upload_path, $filename);
 
-        return [
-            'path' => env('APP_URL').'/storage' . "/$folder_name/$filename"
-        ];
+        if ($is_absolute_path) {
+            return [
+                'path' => getcwd().'/storage' . "/$folder_name/$filename"
+            ];
+        } else {
+            return [
+                'path' => env('APP_URL') . '/storage' . "/$folder_name/$filename"
+            ];
+        }
     }
+
 }

@@ -1,0 +1,294 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Requests\ArticleRequest;
+use App\Models\Article;
+use App\Models\ArticleLabel;
+use App\Services\AdminUsersService;
+use Illuminate\Http\Request;
+use App\Handlers\ImageUploadHandler;
+use Illuminate\Support\Facades\DB;
+use Validator;
+use Illuminate\Validation\Rule;
+
+class ArticleController extends Controller
+{
+    /**
+     * 文章列表
+     * @param Request $request
+     * @return mixed
+     */
+    public function list(Request $request)
+    {
+
+        $title = $request->input('title');
+        $cid = $request->input('cid');//文章分类
+        $label = $request->input('label');//文章标签
+        $status = $request->input('status');//文章状态
+        $page = $request->input('page') ?? 1;
+        $limit = $request->input('limit') ?? 20;
+
+        $where = [];//查询条件
+        if ($title) {
+            $where[] = ['title', 'like', "%" . $title . "%"];
+        }
+
+        if ($cid) {
+            $where[] = ['cid', '=', $cid];
+        }
+
+
+        if ($status != '') {
+            $where[] = ['status', '=', $status];
+        }
+
+        $sort = ['id', 'asc'];
+        $data = Article::query()->with('categories:id,name')->with('labels:labels.id as lid,title')
+            ->whereHas('labels', function ($query) use ($label) {
+                if ($label) {
+                    $query->where('labels.id', '=', $label);
+                }
+            })
+            ->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
+        $total = Article::query()->where($where)->count();
+        return $this->response->array(['code' => 0, 'data' => $data, 'total' => $total, 'message' => 'success']);
+    }
+
+    /**
+     * 上传图片
+     * @param Request $request
+     * @param ImageUploadHandler $uploader
+     * @return mixed
+     */
+    public function upload(Request $request, ImageUploadHandler $uploader)
+    {
+        if ($request->file) {
+            $result = $uploader->save($request->file, 'article', mt_rand(0, 10), true);
+            if ($result) {
+                $file = image_to_base64($result['path']);
+                return $this->response->array(['code' => 0, 'file' => $file, 'message' => 'success']);
+            } else {
+                return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
+            }
+        } else if ($request->cover) {
+            $result = $uploader->save($request->cover, 'article', mt_rand(0, 10));
+            if ($result) {
+                return $this->response->array(['code' => 0, 'file' => $result['path'], 'message' => 'success']);
+            } else {
+                return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'message' => '请选择图片']);
+        }
+    }
+
+    /**
+     * 创建文章
+     * @param ArticleRequest $request
+     * @return mixed
+     */
+    public function store(ArticleRequest $request)
+    {
+        $params = $request->all();
+        $token = $request->header('X-Token');//获取用户token
+        $user = new AdminUsersService($token);
+        //文章标题不能重复
+        $validator = Validator::make($params, ['title' => ['required', Rule::unique('articles')]]);
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+        if ($params['is_admin']) {
+            $params['user_id'] = $user->user->id;//创建者ID
+            $params['admin_name'] = $user->user->username;//管理员名称
+        }
+        DB::beginTransaction();
+
+        $flag = true;
+        $article = Article::create($params);//保存文章
+
+        if ($article) {
+            if (isset($params['label_ids'])) {
+                foreach ($params['label_ids'] as $label) {
+                    $result = ArticleLabel::create(['a_id' => $article->id, 'label_id' => $label]);
+                    if (!$result) {
+                        $flag = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $flag = false;
+        }
+
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '新增文章', $params, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+        }
+
+    }
+
+    /**
+     * 更新文章
+     * @param ArticleRequest $request
+     * @param Article $article
+     * @param ArticleLabel $articleLabel
+     * @return mixed
+     */
+    public function update(ArticleRequest $request, Article $article, ArticleLabel $articleLabel)
+    {
+        $params = $request->only(['id', 'cid', 'title', 'content', 'is_admin', 'publish_date', 'cover', 'status', 'label_ids']);
+        $token = $request->header('X-Token');//获取用户token
+        $user = new AdminUsersService($token);
+        $info = $article::find($params['id']);//文章信息
+        //文章标题不能重复
+        $validator = Validator::make($params, ['title' => ['required', Rule::unique('articles')->ignore($info->id)]]);
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
+        DB::beginTransaction();
+
+        $data['id'] = $params['id'];
+        $data['cid'] = $params['cid'];
+        $data['title'] = $params['title'];
+        $data['content'] = $params['content'];
+        $data['is_admin'] = $params['is_admin'];
+        $data['publish_date'] = $params['publish_date'];
+        $data['cover'] = $params['cover'];
+        $data['status'] = $params['status'];
+
+        if ($params['is_admin']) {
+            $data['user_id'] = $user->user->id;//创建者ID
+            $data['admin_name'] = $user->user->username;//管理员名称
+        }
+
+        $flag = $article->where('id', $params['id'])->update($data);//更新文章
+
+        if ($flag) {
+            if (isset($params['label_ids'])) {
+                $articleLabel::where('a_id', $params['id'])->delete();
+                foreach ($params['label_ids'] as $label) {
+                    $result = ArticleLabel::create(['a_id' => $params['id'], 'label_id' => $label]);
+                    if (!$result) {
+                        $flag = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $flag = false;
+        }
+
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '更新文章', $params, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+        }
+    }
+
+    /**
+     * 上架文章
+     * @param Request $request
+     * @param Article $articleModel
+     * @return mixed
+     */
+    public function up(Request $request, Article $articleModel)
+    {
+        $ids = $request->input('ids');
+        DB::beginTransaction();
+        $flag = true;
+        if (isset($ids)) {
+            foreach ($ids as $id) {
+                $result = $articleModel->where('id', $id)->update(['status' => '0']);
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
+            }
+        }
+
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '上架文章', $ids, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '上架成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '上架失败']);
+        }
+    }
+
+
+    /**
+     * 下架文章
+     * @param Request $request
+     * @param Article $articleModel
+     * @return mixed
+     */
+    public function down(Request $request, Article $articleModel)
+    {
+        $ids = $request->input('ids');
+        DB::beginTransaction();
+        $flag = true;
+        if (isset($ids)) {
+            foreach ($ids as $id) {
+                $result = $articleModel->where('id', $id)->update(['status' => '9']);
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
+            }
+        }
+
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '下架文章', $ids, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '下架成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '下架失败']);
+        }
+    }
+
+    /**
+     * 删除文章
+     * @param Request $request
+     * @param Article $articleModel
+     * @return mixed
+     */
+    public function destroy(Request $request, Article $articleModel)
+    {
+        $ids = $request->input('ids');
+        $flag = true;
+        if (isset($ids)) {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $result = $articleModel->where('id', $id)->delete();
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
+
+            }
+
+            if ($flag) {
+                DB::commit();
+                writeLog($request, '删除文章', $ids, '0');
+                return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            } else {
+                DB::rollBack();
+                return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '删除失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '缺失参数']);
+        }
+
+    }
+}

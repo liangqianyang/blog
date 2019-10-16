@@ -22,12 +22,15 @@ $api->version('v1', [
     $api->post('login', 'LoginController@login')->name('api.login');//登陆
     $api->get('logout', 'LoginController@logout')->name('api.logout');//退出登陆
     $api->post('user/avatar', 'AdminUsersController@uploadAvatar')->name('api.user.avatar');//上传用户头像
+    $api->post('article/upload', 'ArticleController@upload')->name('api.article.upload');//上传图片
     $api->group(['middleware' => 'hasToken'], function ($api) {
         $api->get('nav', 'AdminMenusController@getNav')->name('api.nav');//导航菜单
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
         $api->get('menu/enable', 'AdminMenusController@getEnableMenus')->name('api.menu.enable');//可用的菜单
+        $api->get('menu/authMenus', 'AdminMenusController@getAuthMenus')->name('api.menu.authMenus');//添加菜单时选取的菜单列表
         $api->get('role/enable', 'AdminRolesController@getEnableRoles')->name('api.role.enable');//可用的角色
-        $api->get('category/enable', 'CategoryController@getEnableCategory')->name('api.category.enable');//可用的类目
+        $api->get('category/enable', 'CategoryController@getEnableCategory')->name('api.category.enable');//可用的文章分类
+        $api->get('label/enable', 'LabelController@getEnableLabel')->name('api.label.enable');//可用的文章分类
         $api->get('role/info', 'AdminRolesController@getRoleInfo')->name('api.role.info');//角色详情
         $api->get('log', 'SysLogController@list')->name('api.log.list');//系统日志列表
         $api->group(['middleware' => 'checkAuth'], function ($api) {
@@ -47,6 +50,16 @@ $api->version('v1', [
             $api->post('category', 'CategoryController@store')->name('api.category.store');//保存分类信息
             $api->put('category', 'CategoryController@update')->name('api.category.update');//更新分类信息
             $api->delete('category', 'CategoryController@destroy')->name('api.category.destroy');//删除分类
+            $api->get('label', 'LabelController@list')->name('api.label.list');//标签列表
+            $api->post('label', 'LabelController@store')->name('api.label.store');//保存标签信息
+            $api->put('label', 'LabelController@update')->name('api.label.update');//更新标签信息
+            $api->delete('label', 'LabelController@destroy')->name('api.label.destroy');//删除标签
+            $api->get('article', 'ArticleController@list')->name('api.article.list');//文章列表
+            $api->post('article', 'ArticleController@store')->name('api.article.store');//保存文章信息
+            $api->put('article', 'ArticleController@update')->name('api.article.update');//更新文章信息
+            $api->delete('article', 'ArticleController@destroy')->name('api.article.destroy');//删除文章
+            $api->put('article/up', 'ArticleController@up')->name('api.article.up');//上架文章
+            $api->put('article/down', 'ArticleController@down')->name('api.article.down');//下架文章
         });
     });
 

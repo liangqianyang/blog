@@ -47,23 +47,36 @@ class AdminMenusController extends Controller
             $sort = ['sort', 'asc'];
         }
 
-        $menus = AdminMenu::query()->select('id','parent_id','name','perms','url','type','icon','sort','status')->where($where)->orderBy($sort[0], $sort[1])
+        $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'perms', 'url', 'type', 'icon', 'sort', 'status')->where($where)->orderBy($sort[0], $sort[1])
             ->get()->toArray();
-        $menus =list_to_tree($menus);
+        $menus = list_to_tree($menus);
         $menus = array_values($menus);
         $total = AdminMenu::query()->where($where)->count();
         return $this->response->array(['code' => 0, 'data' => array_values($menus), 'total' => $total, 'message' => 'success']);
     }
 
     /**
-     * 获取可用的菜单
-     * @param MenusService $menusService
+     * 获取权限选择时使用的菜单
      * @return mixed
      */
-    public function getEnableMenus(MenusService $menusService)
+    public function getEnableMenus()
     {
-        $menus = AdminMenu::query()->select('id','parent_id','name','url','type','icon','sort','status')
-            ->where('status','0')->where('type', '<>', '2')->orderBy('sort','asc')->get()->toArray();
+
+        $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
+            ->where('status', '0')->orderBy('sort', 'asc')->get()->toArray();
+        $menus = list_to_tree($menus);
+        $menus = array_values($menus);
+        return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
+    }
+
+    /**
+     * 获取添加菜单时使用的菜单列表
+     * @return mixed
+     */
+    public function getAuthMenus()
+    {
+        $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
+            ->where('status', '0')->where('type', '<>', '2')->orderBy('sort', 'asc')->get()->toArray();
         $menus = list_to_tree($menus);
         $menus = array_values($menus);
         return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
@@ -77,12 +90,16 @@ class AdminMenusController extends Controller
     public function store(MenusRequest $request)
     {
         $params = $request->all();
+        $parent_id = $params['parent_id'];
+        if ($parent_id == 0 && $params['type'] == 0) {
+            $params['url'] = '#';
+        }
         $menu = AdminMenu::create($params);
         if ($menu) {
-            writeLog($request, '新增菜单',$params, '0');
+            writeLog($request, '新增菜单', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -109,10 +126,10 @@ class AdminMenusController extends Controller
         $menu = $adminMenu->where('id', $params['id'])->update($params);
 
         if ($menu) {
-            writeLog($request, '更新菜单',$params,  '0');
+            writeLog($request, '更新菜单', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -125,22 +142,28 @@ class AdminMenusController extends Controller
     public function destroy(Request $request, AdminMenu $adminMenu)
     {
         $ids = $request->input('ids');
-        DB::beginTransaction();
         $flag = true;
-        foreach ($ids as $id) {
-            $result = $adminMenu->where('id', $id)->update(['status' => '9']);
-            if (!$result) {
-                $flag = false;
+        if (isset($ids)) {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $result = $adminMenu->where('id', $id)->update(['status' => '9']);
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
             }
+
+            if ($flag) {
+                DB::commit();
+                writeLog($request, '删除菜单', $ids, '0');
+                return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            } else {
+                DB::rollBack();
+                return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '删除失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '缺失参数']);
         }
 
-        if ($flag) {
-            DB::commit();
-            writeLog($request, '删除菜单',$ids,  '0');
-            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
-        } else {
-            DB::rollBack();
-            return $this->response->array(['code' => 001, 'type' => 'error', 'message' => '删除失败']);
-        }
     }
 }

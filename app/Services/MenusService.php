@@ -57,15 +57,20 @@ class MenusService
     {
         $token_info = AdminUserToken::query()->where('token', $token)->first();
         $auths = [];
+        $perms = [];//权限数组
         if ($token) {
             if ($token_info->user_id === 1) {
                 $perms = AdminMenu::where('status', '0')->pluck('perms')->toArray();
             } else {
-                $user_role = AdminRoleUser::where('user_id', $token_info->user_id)->first();//获取用户角色
-                if ($user_role) {
-                    $user_role_menus = AdminRoleMenu::where('role_id', $user_role->role_id)->pluck('menu_id')->toArray();//获取用户对应的权限
-                    $user_role_menus = array_unique($user_role_menus);
-                    $perms = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->pluck('perms')->toArray();
+                $user_roles = AdminRoleUser::where('user_id', $token_info->user_id)->get();//获取用户角色
+                if ($user_roles) {
+                    foreach ($user_roles as $user_role) {
+                        $user_role_menus = AdminRoleMenu::where('role_id', $user_role->role_id)->pluck('menu_id')->toArray();//获取用户对应的权限
+                        $user_role_menus = array_unique($user_role_menus);
+                        $data = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->pluck('perms')->toArray();
+                        array_push($perms, $data);
+                    }
+                    $perms = array_unique($perms);
                 }
             }
             if ($perms) {

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'parent_id','is_directory', 'level', 'path'];
+    protected $fillable = ['name', 'parent_id', 'level', 'path'];
 
     protected static function boot()
     {
@@ -59,6 +59,14 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * 获取分类所属的文章
+     */
+    public function article()
+    {
+        return $this->belongsTo(Article::class,'cid');
     }
 
     // 定一个一个访问器，获取所有祖先类目的 ID 值

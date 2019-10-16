@@ -20,7 +20,7 @@
                             <div class="layui-col-xs12 layui-col-sm8 layui-col-md7">
                                 <div class="item-cont">
                                     <h3>空间立体效果图，完美呈现最终效果
-                                        <button class="layui-btn layui-btn-danger new-icon">new</button>
+                                        {{--<button class="layui-btn layui-btn-danger new-icon">new</button>--}}
                                     </h3>
                                     <h5>设计文章</h5>
                                     <p>

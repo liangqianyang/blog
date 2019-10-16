@@ -83,14 +83,21 @@ class AdminUsersService
         $users = AdminUser::query()->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
         if ($users) {
             foreach ($users as $user) {
-                $role_info = DB::table('admin_roles')->leftJoin('admin_role_users', 'admin_roles.id', '=', 'admin_role_users.role_id')
-                    ->where('admin_role_users.user_id', $user->id)->select('admin_roles.id as role_id', 'admin_roles.name as role_name')->first();
+                $role_info = DB::table('admin_roles')  ->select('admin_roles.id as role_id', 'admin_roles.name as role_name')
+                    ->leftJoin('admin_role_users', 'admin_roles.id', '=', 'admin_role_users.role_id')
+                    ->where('admin_role_users.user_id', $user->id)->get();
                 if ($role_info) {
-                    $user['role_id'] = $role_info->role_id;
-                    $user['role_name'] = $role_info->role_name;
+                    $role_ids=[];
+                    $role_names=[];
+                    foreach ($role_info as $role){
+                        array_push($role_ids,$role->role_id);
+                        array_push($role_names,$role->role_name);
+                    }
+                    $user['role_ids'] = $role_ids;
+                    $user['role_names'] =$role_names;
                 } else {
-                    $user['role_id'] = '';
-                    $user['role_name'] = '无';
+                    $user['role_ids'] = [];
+                    $user['role_names'] = ['无'];
                 }
             }
         }

@@ -57,7 +57,7 @@ class AdminUsersController extends Controller
     public function uploadAvatar(Request $request, ImageUploadHandler $uploader)
     {
         if ($request->file) {
-            $result = $uploader->save($request->file, 'avatars', mt_rand(0,10));
+            $result = $uploader->save($request->file, 'avatars', mt_rand(0, 10));
             if ($result) {
                 return $this->response->array(['code' => 0, 'path' => $result['path'], 'message' => 'success']);
             } else {
@@ -105,32 +105,42 @@ class AdminUsersController extends Controller
     {
         $params = $request->all();
         $token = $request->header('X-Token');//获取用户token
-        $user = new AdminUsersService($token);
-        Validator::make($params, [
-            'name' => 'required',
-            'password' => 'required',
-            'phone' => 'required',
+        $userInfo = new AdminUsersService($token);//登陆的管理员信息
+        $validator =  Validator::make($params,[
+            'username' => 'required|unique:admin_users',
+            'phone' =>'required|unique:admin_users' ,
+            'email' => 'required|unique:admin_users',
         ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
         DB::beginTransaction();
         $params['password'] = md5(md5($params['password']) . env('AUTH_KEY'));
-        $params['create_user_id'] = $user->user->id;
+        $params['create_user_id'] = $userInfo->user->id;
         $flag = true;
         $user = AdminUser::create($params);
         if ($user) {
-            $result = $user->roles()->create(['role_id' => $params['role_id']]);
-            if (!$result) {
-                $flag = false;
+            if (isset($params['role_ids'])) {
+                foreach ($params['role_ids'] as $role) {
+                    $result = AdminRoleUser::create(['user_id'=>$user->id,'role_id' => $role]);
+                    if (!$result) {
+                        $flag = false;
+                    }
+                }
             }
         } else {
             $flag = false;
         }
+
         if ($flag) {
             DB::commit();
-            writeLog($request, '新增管理',$params, '0');
+            writeLog($request, '新增管理员', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -138,21 +148,22 @@ class AdminUsersController extends Controller
      * 更新管理员信息
      * @param Request $request
      * @param AdminUser $adminUser
-     * @param AdminRoleUser $roleUser
      * @return mixed
      */
-    public function update(Request $request, AdminUser $adminUser, AdminRoleUser $roleUser)
+    public function update(Request $request, AdminUser $adminUser)
     {
         $params = $request->all();
-        $token = $request->header('X-Token');//获取用户token
-        $user = new AdminUsersService($token);
-        Validator::make($params, [
-            'name' => [
-                'required',
-                Rule::unique('admin_users')->ignore($user->user->id),
-            ],
-            'phone' => 'required',
+        $userInfo=$adminUser->where('id', $params['id'])->first();
+        $validator =  Validator::make($params,[
+            'username' => ['required',Rule::unique('admin_users')->ignore($userInfo->id)],
+            'phone' =>['required',Rule::unique('admin_users')->ignore($userInfo->id)] ,
+            'email' => ['required',Rule::unique('admin_users')->ignore($userInfo->id)],
         ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
         DB::beginTransaction();
         $flag = true;
         $data = [
@@ -167,23 +178,28 @@ class AdminUsersController extends Controller
 
         $result = $adminUser->where('id', $params['id'])->update($data);
 
-        $result = $roleUser->where(['user_id' => $params['id']])->first();
-        if ($result && $params['role_id']) {
-            if ($result->role_id != $params['role_id']) {
-                $result = $roleUser->where(['user_id' => $params['id']])->update(['role_id' => $params['role_id']]);
-                if (!$result) {
-                    $flag = false;
+        if ($result) {
+            if (isset($params['role_ids'])) {
+                AdminRoleUser::where('user_id', $params['id'])->delete();
+                foreach ($params['role_ids'] as $role) {
+                    $result = AdminRoleUser::create(['user_id'=> $params['id'],'role_id' => $role]);
+                    if (!$result) {
+                        $flag = false;
+                    }
                 }
             }
+        } else {
+            $flag = false;
         }
+
 
         if ($flag) {
             DB::commit();
-            writeLog($request, '更新管理员信息',$params, '0');
+            writeLog($request, '更新管理员信息', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'data' => $result, 'message' => '更新成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -196,22 +212,27 @@ class AdminUsersController extends Controller
     public function destroy(Request $request, AdminUser $adminUser)
     {
         $ids = $request->input('ids');
-        DB::beginTransaction();
         $flag = true;
-        foreach ($ids as $id) {
-            $result = $adminUser->where('id', $id)->update(['status' => '9']);
-            if (!$result) {
-                $flag = false;
+        if (isset($ids)) {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $result = $adminUser->where('id', $id)->update(['status' => '9']);
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
             }
-        }
 
-        if ($flag) {
-            DB::commit();
-            writeLog($request, '删除管理员',$ids, '0');
-            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            if ($flag) {
+                DB::commit();
+                writeLog($request, '删除管理员', $ids, '0');
+                return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            } else {
+                DB::rollBack();
+                return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '删除失败']);
+            }
         } else {
-            DB::rollBack();
-            return $this->response->array(['code' => 001, 'type' => 'error', 'message' => '删除失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '缺失参数']);
         }
     }
 }

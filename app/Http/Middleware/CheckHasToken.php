@@ -6,6 +6,11 @@ use Closure;
 use Dingo\Api\Routing\Helpers;
 use App\Models\AdminUserToken;
 
+/**
+ * 判断是否传入token
+ * Class CheckHasToken
+ * @package App\Http\Middleware
+ */
 class CheckHasToken
 {
     use Helpers;

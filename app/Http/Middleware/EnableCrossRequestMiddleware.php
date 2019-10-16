@@ -4,6 +4,11 @@ namespace App\Http\Middleware;
 
 use Closure;
 
+/**
+ * 开启跨域
+ * Class EnableCrossRequestMiddleware
+ * @package App\Http\Middleware
+ */
 class EnableCrossRequestMiddleware
 {
     /**

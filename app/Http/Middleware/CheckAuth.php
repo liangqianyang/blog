@@ -6,6 +6,11 @@ use App\Services\MenusService;
 use Closure;
 use Dingo\Api\Routing\Helpers;
 
+/**
+ * 检查是否具有权限
+ * Class CheckAuth
+ * @package App\Http\Middleware
+ */
 class CheckAuth
 {
     use Helpers;

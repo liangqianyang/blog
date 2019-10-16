@@ -63,7 +63,7 @@ class CategoryController extends Controller
             writeLog($request, '新增分类', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -81,10 +81,10 @@ class CategoryController extends Controller
             'parent_id',
             'is_directory',
         ]);
-        $data =$category::find($params['id']);
-        $data->name=$params['name'];
-        $data->parent_id=$params['parent_id'];
-        $data->is_directory=$params['is_directory'];
+        $data = $category::find($params['id']);
+        $data->name = $params['name'];
+        $data->parent_id = $params['parent_id'];
+        $data->is_directory = $params['is_directory'];
 
         $flag = $data->save();
 
@@ -92,7 +92,7 @@ class CategoryController extends Controller
             writeLog($request, '更新分类', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
-            return $this->response->array(['code' => 0, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -105,22 +105,28 @@ class CategoryController extends Controller
     public function destroy(Request $request, Category $category)
     {
         $ids = $request->input('ids');
-        DB::beginTransaction();
         $flag = true;
-        foreach ($ids as $id) {
-            $result = $category->where('id', $id)->delete();
-            if (!$result) {
-                $flag = false;
+        if (isset($ids)) {
+            DB::beginTransaction();
+            foreach ($ids as $id) {
+                $result = $category->where('id', $id)->delete();
+                if (!$result) {
+                    $flag = false;
+                    break;
+                }
             }
+
+            if ($flag) {
+                DB::commit();
+                writeLog($request, '删除分类', $ids, '0');
+                return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
+            } else {
+                DB::rollBack();
+                return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '删除失败']);
+            }
+        } else {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '缺失参数']);
         }
 
-        if ($flag) {
-            DB::commit();
-            writeLog($request, '删除分类', $ids, '0');
-            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '删除成功']);
-        } else {
-            DB::rollBack();
-            return $this->response->array(['code' => 001, 'type' => 'error', 'message' => '删除失败']);
-        }
     }
 }
