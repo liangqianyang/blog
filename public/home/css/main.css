@@ -686,12 +686,20 @@ body {
         display: none;
     }
 
+    .banner {
+        height: 130px;
+        width: 100%;
+        background: url(../img/banner.jpg) no-repeat;
+        background-size: cover;
+    }
+
     .banner .amount {
         line-height: 40px;
     }
 
     .banner .title {
-        top: 245px;
+        /*top: 245px;*/
+        display: none;
     }
 
     .banner .title h3 {
@@ -718,17 +726,24 @@ body {
         margin-left: 10px;
     }
 
-    .banner .title {
-        top: 290px;
-        left: 20px;
-    }
+    /*.banner .title {*/
+        /*top: 290px;*/
+        /*left: 20px;*/
+    /*}*/
 
     .banner .amount {
         left: 20px;
         top: 210px;
         line-height: 30px;
     }
+    .content {
+        padding: 20px 0 60px 0;
+    }
 
+    .content .cont .title {
+        margin-bottom: 25px;
+    }
+    
     .whisper-content .cont .item {
         padding: 30px;
     }
