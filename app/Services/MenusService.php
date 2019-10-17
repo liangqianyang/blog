@@ -32,11 +32,19 @@ class MenusService
                     ->orderBy('sort', 'asc')->get()->toArray();
 
             } else {
-                $user_role = AdminRoleUser::where('user_id', $token_info->user_id)->first();//获取用户角色
-                if ($user_role) {
-                    $user_role_menus = AdminRoleMenu::where('role_id', $user_role->role_id)->pluck('menu_id')->toArray();//获取用户对应的权限
-                    sort($user_role_menus);
-                    $user_role_menus = array_unique($user_role_menus);
+                $role_ids = [];
+                $user_roles = AdminRoleUser::where('user_id', $token_info->user_id)
+                    ->leftJoin('admin_roles', 'admin_roles.id', '=', 'admin_role_users.role_id')
+                    ->where('admin_roles.status','0')
+                    ->get();//获取用户角色
+
+                if ($user_roles) {
+                    foreach ($user_roles as $user_role) {
+                        array_push($role_ids, $user_role->role_id);
+                    }
+                }
+                if ($role_ids) {
+                    $user_role_menus = AdminRoleMenu::whereIn('role_id',$role_ids)->pluck('menu_id')->toArray();//获取用户对应的权限
                     $menus = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->where('type', '<>', '2')
                         ->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
                         ->orderBy('sort', 'asc')->get()->toArray();
@@ -44,6 +52,7 @@ class MenusService
             }
         }
         $menus = list_to_tree($menus);
+        $menus = array_values($menus);
         return $menus;
     }
 
@@ -56,35 +65,29 @@ class MenusService
     public function checkAuth($token, $route)
     {
         $token_info = AdminUserToken::query()->where('token', $token)->first();
-        $auths = [];
         $perms = [];//权限数组
         if ($token) {
             if ($token_info->user_id === 1) {
                 $perms = AdminMenu::where('status', '0')->pluck('perms')->toArray();
             } else {
-                $user_roles = AdminRoleUser::where('user_id', $token_info->user_id)->get();//获取用户角色
+                $user_roles = AdminRoleUser::where('user_id', $token_info->user_id)
+                    ->leftJoin('admin_roles', 'admin_roles.id', '=', 'admin_role_users.role_id')
+                    ->where('admin_roles.status','0')
+                    ->get();//获取用户角色
+
                 if ($user_roles) {
                     foreach ($user_roles as $user_role) {
                         $user_role_menus = AdminRoleMenu::where('role_id', $user_role->role_id)->pluck('menu_id')->toArray();//获取用户对应的权限
-                        $user_role_menus = array_unique($user_role_menus);
-                        $data = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->pluck('perms')->toArray();
+                        $data = AdminMenu::whereIn('id', $user_role_menus)->where('status', '0')->whereNotNull('perms')->pluck('perms')->toArray();
                         array_push($perms, $data);
                     }
-                    $perms = array_unique($perms);
-                }
-            }
-            if ($perms) {
-                foreach ($perms as $perm) {
-                    $auth = explode(',', $perm);
-                    array_push($auths, $auth);
+                    $perms = reduce($perms);
+                    $perms = array_filter($perms);//去除空值
+                    $perms = array_unique($perms);//去除重复的记录
                 }
             }
 
-            $auths = reduce($auths);
-
-            $auths = array_values((array_unique($auths)));
-
-            if (in_array($route, $auths)) {
+            if (in_array($route, $perms)) {
                 return true;
             } else {
                 return false;

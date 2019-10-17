@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\ArticleRequest;
+use App\Handlers\ImageUploadHandler;
 use App\Models\Article;
 use App\Models\ArticleLabel;
 use App\Services\AdminUsersService;
 use Illuminate\Http\Request;
-use App\Handlers\ImageUploadHandler;
 use Illuminate\Support\Facades\DB;
-use Validator;
 use Illuminate\Validation\Rule;
+use Validator;
 
 class ArticleController extends Controller
 {
@@ -85,16 +84,20 @@ class ArticleController extends Controller
 
     /**
      * 创建文章
-     * @param ArticleRequest $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
-    public function store(ArticleRequest $request)
+    public function store(Request $request)
     {
         $params = $request->all();
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         //文章标题不能重复
-        $validator = Validator::make($params, ['title' => ['required', Rule::unique('articles')]]);
+        $validator = Validator::make($params, [
+            'title' => ['required', Rule::unique('articles')],
+            'content' => 'required'
+        ]);
+
         if ($validator->fails()) {
             return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
         }
@@ -127,26 +130,29 @@ class ArticleController extends Controller
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
 
     }
 
     /**
      * 更新文章
-     * @param ArticleRequest $request
+     * @param \Illuminate\Http\Request $request
      * @param Article $article
      * @param ArticleLabel $articleLabel
      * @return mixed
      */
-    public function update(ArticleRequest $request, Article $article, ArticleLabel $articleLabel)
+    public function update(Request $request, Article $article, ArticleLabel $articleLabel)
     {
         $params = $request->only(['id', 'cid', 'title', 'content', 'is_admin', 'publish_date', 'cover', 'status', 'label_ids']);
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $info = $article::find($params['id']);//文章信息
         //文章标题不能重复
-        $validator = Validator::make($params, ['title' => ['required', Rule::unique('articles')->ignore($info->id)]]);
+        $validator = Validator::make($params, [
+            'title' => ['required', Rule::unique('articles')->ignore($info->id)],
+            'content' => 'required'
+        ]);
         if ($validator->fails()) {
             return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
         }
@@ -190,7 +196,7 @@ class ArticleController extends Controller
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 

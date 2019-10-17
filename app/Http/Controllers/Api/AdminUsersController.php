@@ -216,7 +216,7 @@ class AdminUsersController extends Controller
         if (isset($ids)) {
             DB::beginTransaction();
             foreach ($ids as $id) {
-                $result = $adminUser->where('id', $id)->update(['status' => '9']);
+                $result = $adminUser->where('id', $id)->delete();
                 if (!$result) {
                     $flag = false;
                     break;

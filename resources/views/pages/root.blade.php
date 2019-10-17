@@ -129,5 +129,24 @@
             menu.init();
         })
     </script>
+    <script>
+        $(function () {
+            $.ajax({
+                type: "GET",
+                headers:{
+                    'Content-Type':'application/json;charset=utf8',
+                    'X-Token':'a8816c07e69bd3f3014723cbcf36bc39'
+                },
+                url: "http://blog.test/api/nav",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data.data)
+                },
+                error: function (error) {
+                    alert("发生错误：" + error.status);
+                }
+            });
+        })
+    </script>
 @endsection
 

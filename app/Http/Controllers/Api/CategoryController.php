@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Validator;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -52,39 +54,54 @@ class CategoryController extends Controller
 
     /**
      * 保存分类
-     * @param CategoryRequest $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
-    public function store(CategoryRequest $request)
+    public function store(Request $request)
     {
         $params = $request->all();
+
+        $validator = Validator::make($params, [
+            'name' => ['required', Rule::unique('categories')],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
         $menu = Category::create($params);
         if ($menu) {
             writeLog($request, '新增分类', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
     /**
      * 更新分类
-     * @param CategoryRequest $request
+     * @param \Illuminate\Http\Request $request
      * @param Category $category
      * @return mixed
      */
-    public function update(CategoryRequest $request, Category $category)
+    public function update(Request $request, Category $category)
     {
         $params = $request->only([
             'id',
             'name',
             'parent_id',
-            'is_directory',
         ]);
         $data = $category::find($params['id']);
         $data->name = $params['name'];
         $data->parent_id = $params['parent_id'];
-        $data->is_directory = $params['is_directory'];
+
+        $validator = Validator::make($params, [
+            'name' => ['required', Rule::unique('categories')->ignore($data->id)],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
 
         $flag = $data->save();
 
@@ -92,7 +109,7 @@ class CategoryController extends Controller
             writeLog($request, '更新分类', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 

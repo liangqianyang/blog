@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\AdminMenu;
-use Illuminate\Http\Request;
-use App\Http\Requests\MenusRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\AdminRoleMenu;
+use App\Models\AdminRoleUser;
+use App\Services\AdminUsersService;
 use App\Services\MenusService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Validator;
 
 class AdminMenusController extends Controller
 {
@@ -28,7 +32,7 @@ class AdminMenusController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function list(Request $request, MenusService $menusService)
+    public function list(Request $request)
     {
         $name = $request->input('name');
         $status = $request->input('status');
@@ -50,7 +54,6 @@ class AdminMenusController extends Controller
         $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'perms', 'url', 'type', 'icon', 'sort', 'status')->where($where)->orderBy($sort[0], $sort[1])
             ->get()->toArray();
         $menus = list_to_tree($menus);
-        $menus = array_values($menus);
         $total = AdminMenu::query()->where($where)->count();
         return $this->response->array(['code' => 0, 'data' => array_values($menus), 'total' => $total, 'message' => 'success']);
     }
@@ -59,13 +62,28 @@ class AdminMenusController extends Controller
      * 获取权限选择时使用的菜单
      * @return mixed
      */
-    public function getEnableMenus()
+    public function getEnableMenus(Request $request)
     {
-
-        $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
-            ->where('status', '0')->orderBy('sort', 'asc')->get()->toArray();
-        $menus = list_to_tree($menus);
-        $menus = array_values($menus);
+        $token = $request->header('X-Token');//获取用户token
+        $userInfo = new AdminUsersService($token);//登陆的管理员信息
+        $create_user_id = $userInfo->user->id;
+        $menus = [];
+        if ($create_user_id === 1) {
+            $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
+                ->where('status', '0')->orderBy('sort', 'asc')->get()->toArray();
+        } else {
+            $role_ids = AdminRoleUser::where('user_id', $create_user_id)->pluck('role_id');
+            if ($role_ids) {
+                $menu_ids = AdminRoleMenu::whereIn('role_id', $role_ids)->pluck('menu_id');
+                $menus = AdminMenu::query()->select('id', 'parent_id', 'name', 'url', 'type', 'icon', 'sort', 'status')
+                    ->where('status', '0')->whereIn('id', $menu_ids)
+                    ->orderBy('sort', 'asc')->get()->toArray();
+            }
+        }
+        if ($menus) {
+            $menus = list_to_tree($menus);
+            $menus = array_values($menus);
+        }
         return $this->response->array(['code' => 0, 'data' => $menus, 'message' => 'success']);
     }
 
@@ -84,32 +102,49 @@ class AdminMenusController extends Controller
 
     /**
      * 保存菜单
-     * @param MenusRequest $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
-    public function store(MenusRequest $request)
+    public function store(Request $request)
     {
         $params = $request->all();
         $parent_id = $params['parent_id'];
         if ($parent_id == 0 && $params['type'] == 0) {
             $params['url'] = '#';
         }
+
+        $messages = [
+            'name.required' => '菜单名称不能为空',
+            'name.unique' => '菜单名称已存在',
+            'type.required' => '菜单类型不能为空',
+        ];
+
+        $validator = Validator::make($params, [
+            'name' => ['required', Rule::unique('admin_menus')],
+            'type' => 'required',
+        ], $messages
+        );
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
         $menu = AdminMenu::create($params);
         if ($menu) {
             writeLog($request, '新增菜单', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
     /**
      * 更新菜单
-     * @param MenusRequest $request
+     * @param \Illuminate\Http\Request $request
      * @param AdminMenu $adminMenu
      * @return mixed
      */
-    public function update(MenusRequest $request, AdminMenu $adminMenu)
+    public function update(Request $request, AdminMenu $adminMenu)
     {
         $params = $request->only([
             'id',
@@ -122,6 +157,24 @@ class AdminMenusController extends Controller
             'sort',
             'status',
         ]);
+
+        $messages = [
+            'name.required' => '菜单名称不能为空',
+            'name.unique' => '菜单名称已存在',
+            'type.required' => '菜单类型不能为空',
+        ];
+
+        $menuInfo = $adminMenu->where('id', $params['id'])->first();
+
+
+        $validator = Validator::make($params, [
+            'name' => ['required', Rule::unique('admin_menus')->ignore($menuInfo->id)],
+            'type' => 'required',
+        ], $messages);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
 
         $menu = $adminMenu->where('id', $params['id'])->update($params);
 
@@ -146,7 +199,7 @@ class AdminMenusController extends Controller
         if (isset($ids)) {
             DB::beginTransaction();
             foreach ($ids as $id) {
-                $result = $adminMenu->where('id', $id)->update(['status' => '9']);
+                $result = $adminMenu->where('id', $id)->delete();
                 if (!$result) {
                     $flag = false;
                     break;

@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\RolesRequest;
 use App\Models\AdminRole;
 use App\Models\AdminRoleMenu;
-use Illuminate\Http\Request;
-use App\Services\UserRolesService;
-use Illuminate\Support\Facades\DB;
 use App\Services\AdminUsersService;
-use Validator;
+use App\Services\UserRolesService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Validator;
 
 class AdminRolesController extends Controller
 {
@@ -39,9 +38,15 @@ class AdminRolesController extends Controller
         } else {
             $sort = ['id', 'asc'];
         }
-
-        $roles = AdminRole::query()->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
-        $total = AdminRole::query()->where($where)->count();
+        $token = $request->header('X-Token');//获取用户token
+        $user = new AdminUsersService($token);
+        if ($user->user->id === 1) {
+            $roles = AdminRole::query()->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
+            $total = AdminRole::query()->where($where)->count();
+        } else {
+            $roles = AdminRole::query()->where($where)->where('admin_roles.create_user_id', $user->user->id)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
+            $total = AdminRole::query()->where($where)->where('admin_roles.create_user_id', $user->user->id)->count();
+        }
         return $this->response->array(['code' => 0, 'data' => $roles, 'total' => $total, 'message' => 'success']);
     }
 
@@ -73,17 +78,32 @@ class AdminRolesController extends Controller
 
     /**
      * 保存角色信息
-     * @param RolesRequest $request
+     * @param Request $request
      * @return mixed
      */
-    public function store(RolesRequest $request)
+    public function store(Request $request)
     {
-        DB::beginTransaction();
         $params = $request->all();
+
+        $messages = [
+            'name.required' => '角色名称不能为空',
+            'name.unique' => '角色名称已存在',
+            'rule_ids.required' => '权限不能为空',
+        ];
+
+        $validator = Validator::make($params,[
+            'name' => ['required', Rule::unique('admin_roles')],
+            'rule_ids' => 'required',
+            ],$messages
+        );
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $params['create_user_id'] = $user->user->id;
         $flag = true;
+        DB::beginTransaction();
         $role = AdminRole::create($params);
         if ($role) {
             if (isset($params['rule_ids'])) {
@@ -103,7 +123,7 @@ class AdminRolesController extends Controller
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
@@ -116,15 +136,25 @@ class AdminRolesController extends Controller
     public function update(Request $request, AdminRole $adminRole)
     {
         $params = $request->all();
+
+        $messages = [
+            'name.required' => '角色名称不能为空',
+            'name.unique' => '角色名称已存在',
+            'rule_ids.required' => '权限不能为空',
+        ];
+
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $role_info = $adminRole->where('id', $params['id'])->first();
-        Validator::make($params, [
-            'name' => [
-                'required',
-                Rule::unique('admin_roles')->ignore($role_info->id),
-            ],
-        ]);
+        $validator =  Validator::make($params, [
+            'name' => ['required', Rule::unique('admin_roles')->ignore($role_info->id),],
+            'rule_ids' => 'required',
+        ],$messages);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+
         DB::beginTransaction();
         $params['create_user_id'] = $user->user->id;
         $flag = true;
@@ -155,7 +185,7 @@ class AdminRolesController extends Controller
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '更新成功']);
         } else {
             DB::rollBack();
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '更新失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '更新失败']);
         }
     }
 
@@ -172,7 +202,7 @@ class AdminRolesController extends Controller
         if (isset($ids)) {
             DB::beginTransaction();
             foreach ($ids as $id) {
-                $result = $adminRole->where('id', $id)->update(['status' => '9']);
+                $result = $adminRole->where('id', $id)->delete();
                 if (!$result) {
                     $flag = false;
                     break;

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\LabelRequest;
 use App\Models\Label;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,28 +45,36 @@ class LabelController extends Controller
 
     /**
      * 保存标签
-     * @param LabelRequest $request
+     * @param \Illuminate\Http\Request $request
      * @return mixed
      */
-    public function store(LabelRequest $request)
+    public function store(Request $request)
     {
         $params = $request->all();
+
+        $validator = Validator::make($params, [
+            'title' => ['required', Rule::unique('labels')]
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
         $data = Label::create($params);
         if ($data) {
             writeLog($request, '新增标签', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '保存失败']);
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
         }
     }
 
     /**
      * 更新标签
-     * @param LabelRequest $request
+     * @param \Illuminate\Http\Request $request
      * @param Label $label
      * @return mixed
      */
-    public function update(LabelRequest $request, Label $label)
+    public function update(Request $request, Label $label)
     {
         $params = $request->all();
         $label = $label::find($params['id']);
@@ -80,7 +87,7 @@ class LabelController extends Controller
             return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
         }
 
-        $label->title = $params['name'];
+        $label->title = $params['title'];
 
         $flag = $label->save();
 
