@@ -1,5 +1,18 @@
 @extends('layouts.app')
 @section('title', '首页')
+@section('banner')
+    <div class="banner">
+        <div class="layui-carousel" id="test" lay-filter="test">
+            <div carousel-item="">
+                <div><img src="http://blog.test/home/img/banner.jpg"></div>
+                <div><img src="http://blog.test/home/img/banner1.jpg"></div>
+                <div><img src="http://blog.test/home/layui/css/modules/layim/skin/3.jpg"></div>
+                <div><img src="http://blog.test/home/layui/css/modules/layim/skin/4.jpg"></div>
+                <div><img src="http://blog.test/home/layui/css/modules/layim/skin/5.jpg"></div>
+            </div>
+        </div>
+    </div>
+@endsection
 @section('content')
     <div class="content">
         <div class="cont w1000">
@@ -115,19 +128,66 @@
             <div id="demo" style="text-align: center;"></div>
         </div>
     </div>
+@endsection
 
-    <script type="text/javascript" src="/home/layui/layui.js"></script>
+@section('scriptsAfterJs')
     <script type="text/javascript">
+        $(function () {
+
+            $(".layui-breadcrumb a").each(function (index) {
+                $(this).click(function () {
+                    $(".layui-breadcrumb a").removeClass('active')
+                    $(".layui-breadcrumb a").eq(index).addClass('active')
+                })
+            })
+        });
+
+        let scrWidth = window.screen.width;
         layui.config({
             base: '/home/js/util/'
         }).use(['element', 'laypage', 'jquery', 'menu'], function () {
             element = layui.element, laypage = layui.laypage, $ = layui.$, menu = layui.menu;
-            laypage.render({
-                elem: 'demo'
-                , count: 70 //数据总数，从服务端得到
-            });
+            if (scrWidth > 1024) {
+                laypage.render({
+                    elem: 'demo'
+                    , groups: 5
+                    , count: 70 //数据总数，从服务端得到
+                });
+            } else {
+                laypage.render({
+                    elem: 'demo'
+                    , groups: 3
+                    , count: 70 //数据总数，从服务端得到
+                });
+            }
             menu.init();
         })
+
+        layui.use(['carousel'], function () {
+            var carousel = layui.carousel
+            //改变下时间间隔、动画类型、高度
+            //常规轮播
+            if (scrWidth > 1024) {
+                carousel.render({
+                    elem: '#test'
+                    , arrow: 'hover'
+                    , indicator: 'none'
+                    , width: '100%'
+                    , height: '440px'
+                    , interval: 3000
+                });
+            }
+            else {
+                carousel.render({
+                    elem: '#test'
+                    , arrow: 'hover'
+                    , indicator: 'none'
+                    , width: '100%'
+                    , height: '170px'
+                    , interval: 3000
+                });
+            }
+
+        });
     </script>
 @endsection
-

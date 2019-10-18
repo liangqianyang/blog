@@ -26,7 +26,8 @@
     </p>
 </div>
 
-<script type="text/javascript" src="/home/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="/home/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/home/layui/layui.js"></script>
 <script>
     $(function () {
         let nav_name = "{{$nav_name}}"
