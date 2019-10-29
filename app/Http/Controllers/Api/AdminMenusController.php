@@ -119,15 +119,17 @@ class AdminMenusController extends Controller
             'type.required' => '菜单类型不能为空',
         ];
 
-        $validator = Validator::make($params, [
-            'name' => ['required', Rule::unique('admin_menus')],
-            'type' => 'required',
-        ], $messages
-        );
-
-        if ($validator->fails()) {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        if ($params['type'] != 2) {
+            $validator = Validator::make($params, [
+                'name' => ['required', Rule::unique('admin_menus')],
+                'type' => 'required',
+            ], $messages
+            );
+            if ($validator->fails()) {
+                return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+            }
         }
+
 
         $menu = AdminMenu::create($params);
         if ($menu) {
@@ -166,15 +168,17 @@ class AdminMenusController extends Controller
 
         $menuInfo = $adminMenu->where('id', $params['id'])->first();
 
+        if ($params['type'] != 2) {
+            $validator = Validator::make($params, [
+                'name' => ['required', Rule::unique('admin_menus')->ignore($menuInfo->id)],
+                'type' => 'required',
+            ], $messages);
 
-        $validator = Validator::make($params, [
-            'name' => ['required', Rule::unique('admin_menus')->ignore($menuInfo->id)],
-            'type' => 'required',
-        ], $messages);
-
-        if ($validator->fails()) {
-            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+            if ($validator->fails()) {
+                return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+            }
         }
+
 
         $menu = $adminMenu->where('id', $params['id'])->update($params);
 

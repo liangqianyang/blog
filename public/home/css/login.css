@@ -1,0 +1,43 @@
+body {
+    font: 14px 宋体 Helvetica Neue, Helvetica, PingFang SC, Tahoma, Arial, sans-serif;
+    overflow-x: hidden;
+    margin: 0 auto;
+    width: 100%;
+    background-color: #e7f0ff;
+}
+
+.login-box {
+    width: 700px;
+    height: 400px;
+    background-color: #fff;
+    margin: 200px auto;
+    border-radius: 15px
+}
+
+.login-box .background {
+    float: left;
+    margin-left: 40px;
+    margin-top: 80px
+}
+
+.login-box .background img {
+    width: 250px;
+}
+
+.login-box .login-form {
+    float: right;
+    margin-top: 110px;
+    margin-right: 80px;
+}
+
+.login-box .login-form .title {
+    position: relative;
+    bottom: 40px;
+    left: 88px;
+    font-size: 2em;
+}
+
+.login-box .login-form input {
+    border-radius: 10px;
+    width: 210px
+}

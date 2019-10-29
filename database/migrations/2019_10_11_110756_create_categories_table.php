@@ -19,6 +19,7 @@ class CreateCategoriesTable extends Migration
             $table->bigInteger('parent_id')->nullable(false)->comment('父ID');
             $table->unsignedInteger('level');
             $table->string('path');
+            $table->unsignedInteger('sort')->nullable(false)->default(1)->comment('排序');
             $table->timestamps();
         });
     }

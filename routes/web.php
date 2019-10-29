@@ -11,7 +11,13 @@
 |
 */
 Route::get('/', 'IndexController@root');
-Route::get('/whisper', 'WhispersController@index')->name('whisper');
-Route::get('/leacots', 'LeacotsController@index')->name('leacots');
-Route::get('/album', 'AlbumsController@index')->name('album');
-Route::get('/about', 'AboutsController@index')->name('about');
+Route::get('/index.html', 'IndexController@root');
+Route::get('/info.html', 'IndexController@info')->name('info');
+Route::get('/list.html', 'IndexController@list')->name('list');
+Route::get('/list2.html', 'IndexController@list2')->name('list2');
+Route::get('/list3.html', 'IndexController@list3')->name('list3');
+Route::get('/time.html', 'IndexController@time')->name('time');
+Route::get('/about.html', 'IndexController@about')->name('about');
+Route::get('/daohang.html', 'IndexController@daohang')->name('daohang');
+Route::get('/message.html', 'IndexController@message')->name('message');
+

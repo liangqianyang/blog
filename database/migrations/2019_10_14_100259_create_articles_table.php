@@ -24,6 +24,8 @@ class CreateArticlesTable extends Migration
             $table->timestamp('publish_date')->nullable()->comment('发布日期');
             $table->string('cover',255)->nullable()->comment('封面图');
             $table->enum('status',[0,9])->nullable(false)->default('0')->comment('状态 0:正常 9:下架');
+            $table->unsignedInteger('clicks')->default(0)->nullable(false)->comment('点击数');
+            $table->unsignedInteger('likes')->default(0)->nullable(false)->comment('点赞数');
             $table->unsignedInteger('user_id')->nullable(false)->comment('创建者用户id');
             $table->timestamps();
             $table->index('title','blog_articles_title');

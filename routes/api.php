@@ -23,6 +23,7 @@ $api->version('v1', [
     $api->get('logout', 'LoginController@logout')->name('api.logout');//退出登陆
     $api->post('user/avatar', 'AdminUsersController@uploadAvatar')->name('api.user.avatar');//上传用户头像
     $api->post('article/upload', 'ArticleController@upload')->name('api.article.upload');//上传图片
+    $api->post('banner/upload', 'BannerController@upload')->name('api.banner.upload');//上传Banner图片
     $api->group(['middleware' => 'hasToken'], function ($api) {
         $api->get('nav', 'AdminMenusController@getNav')->name('api.nav');//导航菜单
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
@@ -60,6 +61,10 @@ $api->version('v1', [
             $api->delete('article', 'ArticleController@destroy')->name('api.article.destroy');//删除文章
             $api->put('article/up', 'ArticleController@up')->name('api.article.up');//上架文章
             $api->put('article/down', 'ArticleController@down')->name('api.article.down');//下架文章
+            $api->get('banner', 'BannerController@list')->name('api.banner.list');//轮播列表
+            $api->post('banner', 'BannerController@store')->name('api.banner.store');//保存轮播信息
+            $api->put('banner', 'BannerController@update')->name('api.banner.update');//更新轮播信息
+            $api->delete('banner', 'BannerController@destroy')->name('api.banner.destroy');//删除轮播
         });
     });
 

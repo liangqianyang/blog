@@ -90,10 +90,12 @@ class CategoryController extends Controller
             'id',
             'name',
             'parent_id',
+            'sort',
         ]);
         $data = $category::find($params['id']);
         $data->name = $params['name'];
         $data->parent_id = $params['parent_id'];
+        $data->sort=$params['sort'];
 
         $validator = Validator::make($params, [
             'name' => ['required', Rule::unique('categories')->ignore($data->id)],
