@@ -10,9 +10,6 @@
             <div class="banbox">
                 <div class="banner">
                     <div id="banner" class="fader">
-                        @foreach ($users as $user)
-                            <p>This is user {{ $user->id }}</p>
-                        @endforeach
                         <li class="slide" ><a href="/" target="_blank"><img src="/home/images/1.jpg"></a></li>
                         <li class="slide" ><a href="/" target="_blank"><img src="/home/images/2.jpg"></a></li>
                         <li class="slide" ><a href="/" target="_blank"><img src="/home/images/3.jpg"></a></li>
