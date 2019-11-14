@@ -30,7 +30,7 @@ class CategoryController extends Controller
         if ($sort) {
             $sort = explode(" ", $sort);
         } else {
-            $sort = ['id', 'asc'];
+            $sort = ['sort', 'asc'];
         }
         $category = Category::query()->where($where)->orderBy($sort[0], $sort[1])->get()->toArray();
         $total = Category::query()->where($where)->count();
@@ -46,7 +46,7 @@ class CategoryController extends Controller
      */
     public function getEnableCategory()
     {
-        $category = Category::query()->select('id', 'parent_id', 'name')->orderBy('level', 'asc')->get()->toArray();
+        $category = Category::query()->select('id', 'parent_id', 'name')->where('is_category', 1)->orderBy('level', 'asc')->get()->toArray();
         $category = list_to_tree($category);
         $category = array_values($category);
         return $this->response->array(['code' => 0, 'data' => $category, 'message' => 'success']);
@@ -90,12 +90,13 @@ class CategoryController extends Controller
             'id',
             'name',
             'parent_id',
+            'is_category',
             'sort',
         ]);
         $data = $category::find($params['id']);
         $data->name = $params['name'];
         $data->parent_id = $params['parent_id'];
-        $data->sort=$params['sort'];
+        $data->sort = $params['sort'];
 
         $validator = Validator::make($params, [
             'name' => ['required', Rule::unique('categories')->ignore($data->id)],

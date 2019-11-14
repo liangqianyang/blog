@@ -26,6 +26,10 @@ class CreateArticlesTable extends Migration
             $table->enum('status',[0,9])->nullable(false)->default('0')->comment('状态 0:正常 9:下架');
             $table->unsignedInteger('clicks')->default(0)->nullable(false)->comment('点击数');
             $table->unsignedInteger('likes')->default(0)->nullable(false)->comment('点赞数');
+            $table->unsignedInteger('comments')->default(0)->nullable(false)->comment('评论数');
+            $table->string('seo_title',100)->nullable(true)->comment('seo标题');
+            $table->string('seo_keywords',100)->nullable(true)->comment('seo关键词');
+            $table->string('seo_description',255)->nullable(true)->comment('seo描述');
             $table->unsignedInteger('user_id')->nullable(false)->comment('创建者用户id');
             $table->timestamps();
             $table->index('title','blog_articles_title');

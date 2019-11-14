@@ -10,10 +10,9 @@
             <div class="banbox">
                 <div class="banner">
                     <div id="banner" class="fader">
-                        <li class="slide" ><a href="/" target="_blank"><img src="/home/images/1.jpg"></a></li>
-                        <li class="slide" ><a href="/" target="_blank"><img src="/home/images/2.jpg"></a></li>
-                        <li class="slide" ><a href="/" target="_blank"><img src="/home/images/3.jpg"></a></li>
-                        <li class="slide" ><a href="/" target="_blank"><img src="/home/images/4.jpg"></a></li>
+                        @foreach ($banners as $banner)
+                            <li class="slide" ><a href="{{$banner->url}}" target="_blank"><img src="{{$banner->image_url}}" title="{{$banner->title}}"></a></li>
+                        @endforeach
                         <div class="fader_controls">
                             <div class="page prev" data-target="prev"></div>
                             <div class="page next" data-target="next"></div>
@@ -183,7 +182,7 @@
                     <li> <i class="ztpic"><a href="/" target="_blank"><img src="/home/images/h1.jpg"></a></i> <b>个人博客模板《今夕何夕》-响应式个人...</b><span>个人博客模板《今夕何夕》，宽屏响应式个人博客模板，采用冷色系为主，固定导航栏和侧边栏，无缝滚动图片...</span><a href="" target="_blank" class="readmore">文章阅读</a> </li>
                 </ul>
             </div>
-            <div class="ad whitebg"> <img src="/home/images/longad.jpg"> </div>
+            <div class="ad whitebg"> <img src="/home/images/fengjing.jpg"> </div>
             <div class="whitebg bloglist">
                 <h2 class="htitle">最新博文</h2>
                 <ul>

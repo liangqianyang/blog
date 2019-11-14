@@ -12,7 +12,8 @@ class Article extends Model
      * @var array
      */
     protected $fillable = [
-        'cid','title','content', 'is_admin','admin_name', 'publish_date', 'cover','status','user_id','clicks','likes'
+        'cid','title','content', 'is_admin','admin_name', 'publish_date', 'cover','status','user_id','clicks','likes',
+        'seo_title','seo_keywords','seo_description','comments'
     ];
 
     /**

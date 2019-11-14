@@ -10,9 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Validator;
+use Qiniu\Auth;
+use Qiniu\Storage\UploadManager;
 
 class ArticleController extends Controller
 {
+    private  $accessKey='jmFE3U-mtGWnifX2aQe9HetzGoPmCx0chGf53NWQ';
+    private  $secretKey ='PoqapdTWiBoaUo-yj2GrXwBOt4JsXg40mdyOiGLa';
     /**
      * 文章列表
      * @param Request $request
@@ -144,7 +148,8 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article, ArticleLabel $articleLabel)
     {
-        $params = $request->only(['id', 'cid', 'title', 'content', 'is_admin', 'publish_date', 'cover', 'status', 'label_ids']);
+        $params = $request->only(['id', 'cid', 'title', 'content', 'is_admin',
+            'publish_date', 'cover', 'status', 'label_ids','seo_title','seo_keywords','seo_description']);
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $info = $article::find($params['id']);//文章信息
@@ -167,6 +172,9 @@ class ArticleController extends Controller
         $data['publish_date'] = $params['publish_date'];
         $data['cover'] = $params['cover'];
         $data['status'] = $params['status'];
+        $data['seo_title'] = $params['seo_title'];
+        $data['seo_keywords'] = $params['seo_keywords'];
+        $data['seo_description'] = $params['seo_description'];
 
         if ($params['is_admin']) {
             $data['user_id'] = $user->user->id;//创建者ID
