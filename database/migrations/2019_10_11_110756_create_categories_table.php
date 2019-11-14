@@ -15,10 +15,11 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->string('name')->comment('栏目名称');
             $table->bigInteger('parent_id')->nullable(false)->comment('父ID');
-            $table->unsignedInteger('level');
-            $table->string('path');
+            $table->unsignedInteger('level')->comment('等级');
+            $table->string('path')->comment('路径');
+            $table->enum('is_category',[0,1])->default('1')->comment('是否是分类');
             $table->unsignedInteger('sort')->nullable(false)->default(1)->comment('排序');
             $table->timestamps();
         });
