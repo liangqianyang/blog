@@ -148,7 +148,7 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article, ArticleLabel $articleLabel)
     {
-        $params = $request->only(['id', 'cid', 'title', 'content', 'is_admin',
+        $params = $request->only(['id', 'cid', 'title','summary', 'content', 'is_admin',
             'publish_date', 'cover', 'status', 'label_ids','seo_title','seo_keywords','seo_description']);
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
@@ -167,6 +167,7 @@ class ArticleController extends Controller
         $data['id'] = $params['id'];
         $data['cid'] = $params['cid'];
         $data['title'] = $params['title'];
+        $data['summary'] = $params['summary'];
         $data['content'] = $params['content'];
         $data['is_admin'] = $params['is_admin'];
         $data['publish_date'] = $params['publish_date'];

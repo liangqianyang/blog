@@ -18,6 +18,7 @@ class CreateArticlesTable extends Migration
             $table->unsignedInteger('cid')->nullable(false)->comment('分类ID');
             $table->foreign('cid')->references('id')->on('categories')->onDelete('cascade');
             $table->string('title',100)->nullable(false)->comment('文章标题');
+            $table->string('summary',255)->nullable(false)->comment('文章简介');
             $table->text('content')->nullable(false)->comment('文章内容');
             $table->enum('is_admin',[0,1])->nullable(false)->comment('是否是后台发布');
             $table->string('admin_name',100)->nullable(true)->comment('管理员名称');
