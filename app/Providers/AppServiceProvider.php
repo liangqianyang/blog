@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\Page;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
             $children = $nav->children()->get();
             $nav['children'] = $children;
         }
+        $pages = Page::query()->orderBy('sort','asc')->select('id','title','url')->get();
         View::share('navs', $navs);
+        View::share('pages', $pages);
     }
 }

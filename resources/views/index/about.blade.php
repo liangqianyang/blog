@@ -5,14 +5,13 @@
 @section('content')
     <article>
         <div class="whitebg about">
-            <div class="ab_box"> <i class="avatar_pic"><img src="/home/images/avatar.jpg"></i>
-                <h3>杨青青</h3>
-                <p>一个80后草根女站长！Web前端设计师、网页设计师。</p>
-                <p>天津智尚互联科技有限公司设计总监，青于蓝网络工作室创始人。</p>
+            <div class="ab_box"> <i class="avatar_pic"><img src="/home/images/lqy.jpg"></i>
+                <h3>梁前扬</h3>
+                <p>一个90后的快乐宅男！PHP工程师、JAVA工程师、WEB工程师。</p>
             </div>
             <h2 class="gd_title">内心独白</h2>
-            <p class="ab_dubai">我叫杨青青，我是一个80后草根女站长！09年入行。我一直潜心研究网页前端技术，一边工作一边积累经验，分享一些个人博客模板，以及网站优化等心得。我入行早，大家也亲切的叫我“青姐”。我的个人博客搜索“个人博客”、“博客”，一直都靠前。最有意思的是，我有三年的时间没有去更新它，依然排在前面。虽然期间有很多的不容易，但是我都没有放弃过。选了这一行 ，就深深的喜欢上它。我喜欢一句话“冥冥中该来则来，无处可逃”。我喜欢上了前端设计，喜欢坐在电脑前敲代码，喜欢跟一堆程序员聊天。这辈子，我也逃不出去了，深深的陷了进来。 </p>
-            <span class="ly_button"><a href="http://www.yangqq.com/e/tool/gbook/?bid=1" target="_blank">留言</a></span>
+            <p class="ab_dubai">我叫枫叶，是一个90后的当代社会好青年，哈哈哈哈！爱好动漫，羽毛球，摄影(正在学习中)。16年入行，一边工作一边积累经验，喜欢研究一些技术，偶尔会去逛逛一些论坛去问一些问题，碰到自己会的也会回答一些提问。其实想做一个自己的个人博客已经很久了。刚出来工作的时候,技术能力也不是很强,只会写代码,服务器方面的知识基本为零,也就没有去写这个博客了。身为一个技术人员总想着能有一个自己的博客，可以分享经验，记录自己的一些生活经历,也可以上传一些图片，总之就是想打造一个自己心里的一个温馨的空间吧。由于自己主要是做后端的，对于前端的知识只是有个基础的了解，偶然的情况下发现了这套模板，发现挺符合自己心里的预期,就开始了搭积木的过程。到现在主要开发已经写完了，往后会在这上面分享一些技术经验,杂志摘抄，散文诗集，精彩图文，喜欢这个空间可以越来越丰富。也欢迎大家留言提出意见，积极改进，越做越好!</p>
+            <span class="ly_button"><a href="/message.html" target="_blank">留言</a></span>
             <h2 class="gd_title">心路历程</h2>
             <ul class="xinlu">
                 <li><a href="/" target="_blank"><i><img src="/home/images/1.jpg"></i>
@@ -39,54 +38,6 @@
                 <li><a href="/" target="_blank"><i><img src="/home/images/b05.jpg"></i>
                         <p>【匆匆那些年】总结个人博客经历的这四年</p>
                         <span>博客从最初的域名购买，到上线已经有四年的时间了，这四年的时间，有笑过，有怨过，有悔过，有执着过，也有放弃过…但最后还是坚持了下来，时间如此匆匆，等再回过头已来不及去弥补</span></a></li>
-            </ul>
-            <h2 class="gd_title">我的博客</h2>
-            <ul class="myblog">
-                <li><b>创建时间</b>
-                    <p>2011年01月12日</p>
-                    <p><a href="http://www.yangqq.com" target="_blank" class="buttons">主页</a></p>
-                </li>
-                <li><b>主题模板</b>
-                    <p><a href="http://www.yangqq.com" target="_blank">《今夕何夕》</a></p>
-                    <p><a href="/" class="buttons">下载</a></p>
-                </li>
-                <li><b>网站程序</b>
-                    <p>帝国CMS7.5</p>
-                    <p><a href="http://www.yangqq.com" target="_blank" class="buttons">下载</a></p>
-                </li>
-                <li><b>服务器商</b>
-                    <p>阿里云服务器</p>
-                    <a href="/" class="buttons">1888代金券领取</a></li>
-                <li><b>免费空间</b>
-                    <p><a href="http://www.4562.com/?u=3CE3E8" target="_blank">金牛云服</a></p>
-                    <a href="/" class="buttons">国内主机免费领</a></li>
-            </ul>
-            <h2 class="gd_title">加入我们</h2>
-            <ul class="qq_join">
-                <li>
-                    <section><img src="/home/images/qq1.png">
-                        <p>网页设计交流吧①</p>
-                        <p>QQ群号：280998807</p>
-                    </section>
-                </li>
-                <li>
-                    <section><img src="/home/images/qq2.png">
-                        <p>网页设计交流吧②</p>
-                        <p>QQ群号：291195645</p>
-                    </section>
-                </li>
-                <li>
-                    <section><img src="/home/images/joinwx.png">
-                        <p>关注官方<b>微信</b>公众号</p>
-                        <p>掌握最新的模板信息！</p>
-                    </section>
-                </li>
-                <li>
-                    <section><img src="/home/images/joinwxqun.png">
-                        <p>网页设计交流<b>微信群</b></p>
-                        <p>目前只接受群主拉进群</p>
-                    </section>
-                </li>
             </ul>
         </div>
     </article>
