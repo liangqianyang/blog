@@ -71,6 +71,11 @@ $api->version('v1', [
             $api->post('material', 'MaterialController@store')->name('api.material.store');//保存素材信息
             $api->put('material', 'MaterialController@update')->name('api.material.update');//更新素材信息
             $api->delete('material', 'MaterialController@destroy')->name('api.material.destroy');//删除素材
+            $api->get('notice', 'NoticeController@list')->name('api.notice.list');//公告列表
+            $api->post('notice', 'NoticeController@store')->name('api.notice.store');//保存公告信息
+            $api->put('notice', 'NoticeController@update')->name('api.notice.update');//更新公告信息
+            $api->delete('notice', 'NoticeController@destroy')->name('api.notice.destroy');//删除公告
+            $api->put('notice/top', 'NoticeController@top')->name('api.notice.top');//置顶公告
         });
     });
 
