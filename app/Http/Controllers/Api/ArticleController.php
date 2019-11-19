@@ -15,8 +15,9 @@ use Qiniu\Storage\UploadManager;
 
 class ArticleController extends Controller
 {
-    private  $accessKey='jmFE3U-mtGWnifX2aQe9HetzGoPmCx0chGf53NWQ';
-    private  $secretKey ='PoqapdTWiBoaUo-yj2GrXwBOt4JsXg40mdyOiGLa';
+    private $accessKey = 'jmFE3U-mtGWnifX2aQe9HetzGoPmCx0chGf53NWQ';
+    private $secretKey = 'PoqapdTWiBoaUo-yj2GrXwBOt4JsXg40mdyOiGLa';
+
     /**
      * 文章列表
      * @param Request $request
@@ -53,7 +54,8 @@ class ArticleController extends Controller
                     $query->where('labels.id', '=', $label);
                 }
             })
-            ->where($where)->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
+            ->where($where)->orderBy('is_top', 'desc')->orderBy('likes', 'desc')
+            ->orderBy('comments', 'desc')->orderBy($sort[0], $sort[1])->forPage($page, $limit)->get();
         $total = Article::query()->where($where)->count();
         return $this->response->array(['code' => 0, 'data' => $data, 'total' => $total, 'message' => 'success']);
     }
@@ -148,8 +150,9 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article, ArticleLabel $articleLabel)
     {
-        $params = $request->only(['id', 'cid', 'title','summary', 'content', 'is_admin',
-            'publish_date', 'cover', 'status', 'label_ids','seo_title','seo_keywords','seo_description']);
+        $params = $request->only(['id', 'cid', 'title', 'summary', 'content', 'is_admin',
+            'publish_date', 'cover', 'status', 'label_ids', 'seo_title', 'seo_keywords', 'seo_description',
+            'likes','comments']);
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $info = $article::find($params['id']);//文章信息
@@ -176,6 +179,8 @@ class ArticleController extends Controller
         $data['seo_title'] = $params['seo_title'];
         $data['seo_keywords'] = $params['seo_keywords'];
         $data['seo_description'] = $params['seo_description'];
+        $data['likes'] = $params['likes'];
+        $data['comments'] = $params['comments'];
 
         if ($params['is_admin']) {
             $data['user_id'] = $user->user->id;//创建者ID
@@ -206,6 +211,36 @@ class ArticleController extends Controller
         } else {
             DB::rollBack();
             return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '保存失败']);
+        }
+    }
+
+    /**
+     * 置顶文章
+     * @param Request $request
+     * @param Article $articleModel
+     * @return mixed
+     */
+    public function top(Request $request, Article $articleModel)
+    {
+        $id = $request->input('id');
+        DB::beginTransaction();
+        $topArticle = $articleModel::where('is_top', 1)->first();//获取置顶的数据
+        $flag = true;
+        if ($topArticle) {
+            $flag = $articleModel->where('id', $topArticle->id)->update(['is_top' => 0]);//取消置顶
+        }
+
+        if ($flag) {
+            $flag = $articleModel->where('id', $id)->update(['is_top' => 1]);//新的置顶
+        }
+
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '置顶文章', $id, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '置顶成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => '置顶失败']);
         }
     }
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Enums\NavigationEnums;
 use App\Models\Banner;
 
 class IndexController extends Controller
@@ -52,4 +51,5 @@ class IndexController extends Controller
     {
         return view('index.message');
     }
+
 }
