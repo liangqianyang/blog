@@ -20,12 +20,12 @@
 
 
                 @foreach ($navs as $nav)
-                    <li><a href="#">
+                    <li><a href="{{$nav->url}}">
                             {{$nav->name}}</a>
                         @if (!empty($nav->children))
                             <ul class="sub">
                                 @foreach ($nav->children as $item)
-                                    <li><a href="#">{{$item->name}}</a></li>
+                                    <li><a href="{{$item->url}}">{{$item->name}}</a></li>
                                 @endforeach
                             </ul>
                         @endif

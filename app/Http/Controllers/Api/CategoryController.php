@@ -89,12 +89,14 @@ class CategoryController extends Controller
         $params = $request->only([
             'id',
             'name',
+            'url',
             'parent_id',
             'is_category',
             'sort',
         ]);
         $data = $category::find($params['id']);
         $data->name = $params['name'];
+        $data->url = $params['url'];
         $data->parent_id = $params['parent_id'];
         $data->sort = $params['sort'];
 
