@@ -32,6 +32,7 @@ class CreateArticlesTable extends Migration
             $table->string('seo_keywords',100)->nullable(true)->comment('seo关键词');
             $table->string('seo_description',255)->nullable(true)->comment('seo描述');
             $table->unsignedInteger('user_id')->nullable(false)->comment('创建者用户id');
+            $table->unsignedTinyInteger('is_top')->nullable(false)->default(0)->comment('是否置顶');
             $table->timestamps();
             $table->index('title','blog_articles_title');
             $table->index('status','blog_articles_status');

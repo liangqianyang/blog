@@ -63,7 +63,17 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
         ],
-
+        'oss' => [
+            'driver'        => 'oss',
+            'access_id'     => env('ALIYUN_ACCESS_ID'),
+            'access_key'    => env('ALIYUN_ACCESS_KEY'),
+            'bucket'        => env('ALIYUN_BUCKET'),
+            'endpoint'      => env('ALIYUN_ENDPOINT'),
+            'cdnDomain'     => env('ALIYUN_CDN_DOMAIN'),
+            'ssl'           => env('ALIYUN_SSL',false),
+            'isCName'       => env('ALIYUN_IS_CNAME',true),
+            'debug'         => env('ALIYUN_DEBUG',false)
+        ],
     ],
 
 ];
