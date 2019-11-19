@@ -13,7 +13,7 @@ class Article extends Model
      */
     protected $fillable = [
         'cid','title','summary','content', 'is_admin','admin_name', 'publish_date', 'cover','status','user_id',
-        'clicks','likes','seo_title','seo_keywords','seo_description','comments'
+        'clicks','likes','seo_title','seo_keywords','seo_description','comments','is_top'
     ];
 
     /**
@@ -47,4 +47,5 @@ class Article extends Model
             'label_id'
         );
     }
+
 }

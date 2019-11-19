@@ -24,6 +24,7 @@ $api->version('v1', [
     $api->post('user/avatar', 'AdminUsersController@uploadAvatar')->name('api.user.avatar');//上传用户头像
     $api->post('article/upload', 'ArticleController@upload')->name('api.article.upload');//上传图片
     $api->post('banner/upload', 'BannerController@upload')->name('api.banner.upload');//上传Banner图片
+    $api->post('material/upload', 'MaterialController@upload')->name('api.material.upload');//上传素材图片
     $api->group(['middleware' => 'hasToken'], function ($api) {
         $api->get('nav', 'AdminMenusController@getNav')->name('api.nav');//导航菜单
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
@@ -59,12 +60,22 @@ $api->version('v1', [
             $api->post('article', 'ArticleController@store')->name('api.article.store');//保存文章信息
             $api->put('article', 'ArticleController@update')->name('api.article.update');//更新文章信息
             $api->delete('article', 'ArticleController@destroy')->name('api.article.destroy');//删除文章
+            $api->put('article/top', 'ArticleController@top')->name('api.article.top');//置顶文章
             $api->put('article/up', 'ArticleController@up')->name('api.article.up');//上架文章
             $api->put('article/down', 'ArticleController@down')->name('api.article.down');//下架文章
             $api->get('banner', 'BannerController@list')->name('api.banner.list');//轮播列表
             $api->post('banner', 'BannerController@store')->name('api.banner.store');//保存轮播信息
             $api->put('banner', 'BannerController@update')->name('api.banner.update');//更新轮播信息
             $api->delete('banner', 'BannerController@destroy')->name('api.banner.destroy');//删除轮播
+            $api->get('material', 'MaterialController@list')->name('api.material.list');//素材列表
+            $api->post('material', 'MaterialController@store')->name('api.material.store');//保存素材信息
+            $api->put('material', 'MaterialController@update')->name('api.material.update');//更新素材信息
+            $api->delete('material', 'MaterialController@destroy')->name('api.material.destroy');//删除素材
+            $api->get('notice', 'NoticeController@list')->name('api.notice.list');//公告列表
+            $api->post('notice', 'NoticeController@store')->name('api.notice.store');//保存公告信息
+            $api->put('notice', 'NoticeController@update')->name('api.notice.update');//更新公告信息
+            $api->delete('notice', 'NoticeController@destroy')->name('api.notice.destroy');//删除公告
+            $api->put('notice/top', 'NoticeController@top')->name('api.notice.top');//置顶公告
         });
     });
 
