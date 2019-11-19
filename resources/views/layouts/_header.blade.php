@@ -1,10 +1,10 @@
 <header id="header">
     <div class="navbox">
         <h2 id="mnavh"><span class="navicon"></span></h2>
-        <div class="logo"><a href="http://www.lqy-comic.com">枫叶个人博客</a></div>
+        <div class="logo"><a href="/index.html">枫叶个人博客</a></div>
         <nav>
             <ul id="starlist">
-                <li><a href="index.html">首页</a></li>
+                <li><a href="/index.html">首页</a></li>
                 {{--<li><a href="list.html">个人博客日记</a></li>--}}
                 {{--<li class="menu"><a href="list2.html">博客网站制作</a>--}}
                 {{--<ul class="sub">--}}
@@ -31,9 +31,9 @@
                         @endif
                     </li>
                 @endforeach
-                <li><a href="time.html">时间轴</a></li>
-                <li><a href="message.html">留言</a></li>
-                <li><a href="about.html">关于我</a></li>
+                @foreach ($pages as $page)
+                    <li><a href="{{$page->url}}">{{$page->title}}</a></li>
+                @endforeach
             </ul>
         </nav>
         <div class="searchico"></div>
