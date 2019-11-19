@@ -76,6 +76,10 @@ $api->version('v1', [
             $api->put('notice', 'NoticeController@update')->name('api.notice.update');//更新公告信息
             $api->delete('notice', 'NoticeController@destroy')->name('api.notice.destroy');//删除公告
             $api->put('notice/top', 'NoticeController@top')->name('api.notice.top');//置顶公告
+            $api->get('page', 'PageController@list')->name('api.page.list');//单页列表
+            $api->post('page', 'PageController@store')->name('api.page.store');//保存单页信息
+            $api->put('page', 'PageController@update')->name('api.page.update');//更新单页信息
+            $api->delete('page', 'PageController@destroy')->name('api.page.destroy');//删除单页
         });
     });
 
