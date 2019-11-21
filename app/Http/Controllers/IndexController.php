@@ -3,13 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Models\Category;
+use App\Services\ArticleService;
 
 class IndexController extends Controller
 {
     public function root()
     {
+        //获取banner
         $banners = Banner::query()->orderBy('sort', 'asc')->get();
-        return view('index.index', ['is_root' => 1,'banners'=>$banners]);
+        //获取分类列表
+        $categories = Category::query()->where('is_category', 1)->where('level', 0)->orderBy('sort')->get();
+        $tab = [];
+        if ($categories) {
+            $articleService = new ArticleService();
+            $category_id = $categories->get(0)->id;
+            $columns = ['id', 'cover', 'title', 'summary'];
+            $articles = $articleService->getArticleByCategory($category_id, $columns);
+            if ($articles) {
+                $tab['list'] = $articles;
+                $tab['pic'] = $articles->random(2);
+            }
+        }
+        return view('index.index', ['is_root' => 1, 'banners' => $banners, 'categories' => $categories, 'tab' => $tab]);
     }
 
     public function info()

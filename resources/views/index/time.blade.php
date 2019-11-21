@@ -45,5 +45,5 @@
             <script src="/home/js/page2.js"></script>
         </div>
     </article>
-@stop
+@endsection
 

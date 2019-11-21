@@ -87,6 +87,7 @@
             <li><a href="/">做个人博客如何用帝国cms美化留言增加头像选择</a></li>
         </ul>
     </div>
+
     <div class="ad whitebg imgscale">
         <ul>
             <a href="/"><img src="/home/images/ad02.jpg"></a>
@@ -105,9 +106,6 @@
             <img src="/home/images/wxgzh.jpg" class="tongji_gzh">
         </ul>
     </div>
-    @isset($is_root)
-        @if ($is_root === 1)
-            @include('layouts._link')
-        @endif
-    @endisset
+
+
 </div>

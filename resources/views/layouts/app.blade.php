@@ -2,9 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>@yield('title', '首页') -枫叶个人博客</title>
-    <meta name="keywords" content=" @yield('keywords','blog')" />
-    <meta name="description" content="@yield('description','blog')" />
+    <title>@yield('title', '枫叶博客') -枫叶个人博客</title>
+    <meta name="keywords" content=" @yield('keywords','枫叶,博客,枫叶博客,PHP,技术')" />
+    <meta name="description" content="@yield('description','枫叶博客')" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CSRF Token -->
@@ -25,5 +25,6 @@
 <!--top end-->
 @yield('content')
 @include('layouts._footer')
+@yield('scriptsAfterJs')
 </body>
 </html>
