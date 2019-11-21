@@ -3,7 +3,7 @@
         <div class="wxbox">
             <ul>
                 <li><img src="/home/images/wxgzh.jpg"><span>微信公众号</span></li>
-                <li><img src="/home/images/wx_lqy.jpg"><span>我的微信</span></li>
+                <li><img src="/home/images/wx.jpg"><span>我的微信</span></li>
             </ul>
         </div>
         <div class="endnav">

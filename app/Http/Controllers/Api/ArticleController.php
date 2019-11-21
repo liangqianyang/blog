@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Article;
 use App\Models\ArticleLabel;
+use App\Models\Category;
 use App\Services\AdminUsersService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -111,6 +112,9 @@ class ArticleController extends Controller
             $params['user_id'] = $user->user->id;//创建者ID
             $params['admin_name'] = $user->user->username;//管理员名称
         }
+        if (empty($params['publish_date'])) {
+            $params['publish_date'] = date('Y-m-d H:i:s', time());
+        }
         DB::beginTransaction();
 
         $flag = true;
@@ -132,6 +136,7 @@ class ArticleController extends Controller
 
         if ($flag) {
             DB::commit();
+            unset($params['content']);
             writeLog($request, '新增文章', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
@@ -152,7 +157,7 @@ class ArticleController extends Controller
     {
         $params = $request->only(['id', 'cid', 'title', 'summary', 'content', 'is_admin',
             'publish_date', 'cover', 'status', 'label_ids', 'seo_title', 'seo_keywords', 'seo_description',
-            'likes','comments']);
+            'likes', 'comments']);
         $token = $request->header('X-Token');//获取用户token
         $user = new AdminUsersService($token);
         $info = $article::find($params['id']);//文章信息
@@ -206,6 +211,7 @@ class ArticleController extends Controller
 
         if ($flag) {
             DB::commit();
+            unset($params['content']);
             writeLog($request, '更新文章', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
         } else {
@@ -341,4 +347,5 @@ class ArticleController extends Controller
         }
 
     }
+
 }

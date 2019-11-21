@@ -59,4 +59,4 @@
         </div>
         @include('layouts._rbox')
     </article>
-@stop
+@endsection

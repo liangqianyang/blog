@@ -41,4 +41,4 @@
             </ul>
         </div>
     </article>
-@stop
+@endsection

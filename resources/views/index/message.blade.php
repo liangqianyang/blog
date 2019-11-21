@@ -198,4 +198,4 @@
 
         </div>
     </article>
-@stop
+@endsection
