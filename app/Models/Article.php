@@ -48,4 +48,12 @@ class Article extends Model
         );
     }
 
+    /**
+     * 关联评论
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comments::class, 'id', 'article_id');
+    }
 }

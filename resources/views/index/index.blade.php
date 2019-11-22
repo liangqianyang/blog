@@ -55,13 +55,13 @@
                         <div class="newspic">
                             <ul>
                                 @foreach ($tab['pic'] as $item)
-                                    <li><a href="{{ route('article.show', [$item->id]) }}"><img src="{{$item->cover}}"><span>{{$item->title}}</span></a></li>
+                                    <li><a href="{{ route('article.show', ['id'=>$item->id]) }}"><img src="{{$item->cover}}"><span>{{$item->title}}</span></a></li>
                                 @endforeach
                             </ul>
                         </div>
                         <ul class="newslist">
                             @foreach ($tab['list'] as $item)
-                                <li><i></i><a href="{{ route('article.show', [$item->id]) }}">{{$item->title}}</a>
+                                <li><i></i><a href="{{ route('article.show', ['id'=>$item->id]) }}">{{$item->title}}</a>
                                     <p>{{$item->summary}}</p>
                                 </li>
                             @endforeach

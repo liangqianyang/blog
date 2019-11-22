@@ -48,17 +48,18 @@ class ArticleService
     }
 
     /**
-     * 根据文章id获取文章详情
+     * 根据文章ID获取文章详情
      * @param $article_id
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|null
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null|object
      */
     public function detail($article_id)
     {
         try {
             $article = Article::query()
+                ->with('categories:id,name')->with('labels:labels.id,title')
                 ->where('id', $article_id)->orderBy('is_top', 'desc')
                 ->orderBy('likes', 'desc')
-                ->orderBy('comments', 'desc')->get();
+                ->orderBy('comments', 'desc')->first();
             return $article;
         } catch (\Exception $e) {
             return null;
