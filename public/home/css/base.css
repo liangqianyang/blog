@@ -353,8 +353,8 @@ about
 .price_info p { margin-bottom: 5px }
 .price_info img { position: absolute; right: 20px; top: 0; width: 120px }
 .share { padding: 10px 20px; background: #f7f7f7; border-left: 3px solid #000; }
-.diggit { display: block; width: 160px; margin: 20px auto; background: #E2523A; color: #fff; box-shadow: 1px 2px 6px 0px rgba(0,0,0,.2); border-radius: 3px; line-height: 40px; text-align: center; }
-.diggit a { color: #fff }
+.diggit { display: block;cursor:pointer;width: 160px; margin: 20px auto; background: #E2523A; color: #fff; box-shadow: 1px 2px 6px 0px rgba(0,0,0,.2); border-radius: 3px; line-height: 40px; text-align: center; }
+.diggit a { color: #fff;}
 .diggit a:hover { text-decoration: none }
 .otherlink { margin: 10px 0; overflow: hidden }
 .otherlink li { position: relative; line-height: 26px; height: 26px; display: block; width: 50%; float: left; overflow: hidden; }
@@ -390,6 +390,8 @@ img#plKeyImg { display: inline-block; }
 .yname { margin: 10px 10px 10px 0 }
 .yname span, .yzm span { padding-right: 10px; }
 .yzm { margin: 0 10px 10px 0 }
+.inputText {width:200px;height:30px}
+
 .gbox input[type="submit"] { display: block; background: #303030; color: #fff; border: 0; line-height: 30px; padding: 0 20px; border-radius: 5px; float: right; }
 #plpost textarea#saytext { width: 100%; }
 #plpost input[type="submit"] { display: block; background: #040404; color: #fff; border: 0; line-height: 30px; padding: 0 20px; border-radius: 5px; float: right; }
