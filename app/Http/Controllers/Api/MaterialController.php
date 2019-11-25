@@ -63,7 +63,7 @@ class MaterialController extends Controller
             $material = new AliOssService();
             $folder = "material";//目录名
             $result = $material->upload($folder, $file);
-            if ($result['code'] === 0) {
+            if ($result) {
                 return ['code' => 0, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
             } else {
                 return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
