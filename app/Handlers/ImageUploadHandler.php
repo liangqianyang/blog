@@ -67,6 +67,7 @@ class ImageUploadHandler
      */
     public function uploadToAli($file, $folder)
     {
+        $file = $_FILES['file'];
         //获取文件名
         $filename = $_FILES['file']['name'];
         //获取文件临时路径
