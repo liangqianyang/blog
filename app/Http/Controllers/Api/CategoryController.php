@@ -89,6 +89,8 @@ class CategoryController extends Controller
         $params = $request->only([
             'id',
             'name',
+            'image',
+            'summary',
             'url',
             'parent_id',
             'is_category',
@@ -97,6 +99,8 @@ class CategoryController extends Controller
         $data = $category::find($params['id']);
         $data->name = $params['name'];
         $data->url = $params['url'];
+        $data->image = $params['image'];
+        $data->summary = $params['summary'];
         $data->parent_id = $params['parent_id'];
         $data->sort = $params['sort'];
 

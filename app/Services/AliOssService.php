@@ -44,13 +44,13 @@ class AliOssService implements OssService
 
     }
 
-    public function upload($file)
+    public function upload($folder,$file)
     {
         $url = "";
         try {
             // 文件名称
             $filePath = $file['tmp_name'];
-            $object = "material/" . $file['name'];
+            $object = $folder."/" . $file['name'];
             $ossClient = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->endpoint);
             $result = $ossClient->uploadFile($this->bucket, $object, $filePath);
             if ($result && isset($result['info'])) {

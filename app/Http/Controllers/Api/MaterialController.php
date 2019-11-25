@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Handlers\ImageUploadHandler;
 use App\Models\Material;
 use App\Services\AliOssService;
 use Illuminate\Http\Request;
@@ -34,33 +35,20 @@ class MaterialController extends Controller
     }
 
 
+    /**
+     * 上传图片
+     * @param Request $request
+     * @return mixed
+     */
     public function upload(Request $request)
     {
         $file = $_FILES['file'];
         if ($file) {
-            //获取文件名
-            $filename = $_FILES['file']['name'];
-            //获取文件临时路径
-            $file_path = $file['tmp_name'];
-            $image_info = getimagesize($file_path);//图片宽高等信息
-            $width = $image_info[0];
-            $height = $image_info[1];
-            $type = $image_info[2];
-            $file_info = pathinfo($filename);//文件信息
-            //获取文件的后缀名
-            $ext_suffix = $file_info['extension'];
-            //设置允许上传文件的后缀
-            $allow_suffix = array('jpg', 'gif', 'jpeg', 'png');
-            //判断上传的文件是否在允许的范围内（后缀）==>白名单判断
-            if (!in_array($ext_suffix, $allow_suffix)) {
-                return $this->response->array(['code' => 1001, 'message' => '上传的文件类型只能是jpg,gif,jpeg,png']);
-            }
-
-            $material = new AliOssService();
-            $result = $material->upload($file);
-            if ($result) {
-                return $this->response->array(['code' => 0, 'file' => $result, 'width' => $width, 'height' => $height
-                    , 'type' => $type, 'message' => 'success']);
+            $image_upload_handler = new ImageUploadHandler();
+            $folder = "material";//目录名
+            $result = $image_upload_handler->uploadToAli($file, $folder);
+            if ($result['code'] === 0) {
+                return $this->response->array($result);
             } else {
                 return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
             }

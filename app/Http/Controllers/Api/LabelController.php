@@ -88,6 +88,7 @@ class LabelController extends Controller
         }
 
         $label->title = $params['title'];
+        $label->is_special = $params['is_special'];
 
         $flag = $label->save();
 

@@ -19,10 +19,11 @@ interface OssService
 
     /**
      * 上传文件
+     * @var $folder 目录名称
      * @var $file 文件路径
      * @return mixed
      */
-    public function upload($file);
+    public function upload($folder,$file);
 
     /**
      * 删除文件
