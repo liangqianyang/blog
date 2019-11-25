@@ -44,6 +44,12 @@ class AliOssService implements OssService
 
     }
 
+    /**
+     * 上传
+     * @param 目录名称 $folder
+     * @param 文件路径 $file
+     * @return mixed|string
+     */
     public function upload($folder,$file)
     {
         $url = "";
@@ -53,7 +59,6 @@ class AliOssService implements OssService
             $object = $folder."/" . $file['name'];
             $ossClient = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->endpoint);
             $result = $ossClient->uploadFile($this->bucket, $object, $filePath);
-            return $result;
             if ($result && isset($result['info'])) {
                 $info = $result['info'];
                 if ($info['http_code'] == 200) {
