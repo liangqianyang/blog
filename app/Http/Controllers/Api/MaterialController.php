@@ -47,11 +47,12 @@ class MaterialController extends Controller
             $image_upload_handler = new ImageUploadHandler();
             $folder = "material";//目录名
             $result = $image_upload_handler->uploadToAli($file, $folder);
-            if ($result['code'] === 0) {
-                return $this->response->array($result);
-            } else {
-                return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
-            }
+            return $result;
+//            if ($result['code'] === 0) {
+//                return $this->response->array($result);
+//            } else {
+//                return $this->response->array(['code' => 1002, 'message' => '图片上传失败']);
+//            }
         } else {
             return $this->response->array(['code' => 1001, 'message' => '请选择图片']);
         }
