@@ -87,7 +87,7 @@ class ImageUploadHandler
         if ($result) {
             return ['code' => 0, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
         } else {
-            return false;
+            return ['code' => 1001, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
         }
     }
 
