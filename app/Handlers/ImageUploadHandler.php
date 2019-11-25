@@ -67,7 +67,6 @@ class ImageUploadHandler
      */
     public function uploadToAli($folder,$file)
     {
-        $file = $_FILES['file'];
         //获取文件名
         $filename = $_FILES['file']['name'];
         //获取文件临时路径
@@ -85,11 +84,10 @@ class ImageUploadHandler
         }
         $material = new AliOssService();
         $result = $material->upload($folder, $file);
-        return $result;
         if ($result) {
             return ['code' => 0, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
         } else {
-            return ['code' => 1001, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
+            return false;
         }
     }
 
