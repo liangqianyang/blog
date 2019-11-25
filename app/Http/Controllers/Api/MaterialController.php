@@ -46,7 +46,7 @@ class MaterialController extends Controller
         if ($file) {
             $image_upload_handler = new ImageUploadHandler();
             $folder = "material";//目录名
-            $result = $image_upload_handler->uploadToAli($file, $folder);
+            $result = $image_upload_handler->uploadToAli($folder,$file);
             return $result;
 //            if ($result['code'] === 0) {
 //                return $this->response->array($result);

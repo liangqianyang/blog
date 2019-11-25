@@ -61,11 +61,11 @@ class ImageUploadHandler
 
     /**
      * 上传到阿里云oss
-     * @param $file
      * @param $folder
+     * @param $file
      * @return array|bool
      */
-    public function uploadToAli($file, $folder)
+    public function uploadToAli($folder,$file)
     {
         $file = $_FILES['file'];
         //获取文件名
