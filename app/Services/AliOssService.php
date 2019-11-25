@@ -53,6 +53,7 @@ class AliOssService implements OssService
             $object = $folder."/" . $file['name'];
             $ossClient = new OssClient($this->accessKeyId, $this->accessKeySecret, $this->endpoint);
             $result = $ossClient->uploadFile($this->bucket, $object, $filePath);
+            return $result;
             if ($result && isset($result['info'])) {
                 $info = $result['info'];
                 if ($info['http_code'] == 200) {
