@@ -18,6 +18,8 @@ class CreateCategoriesTable extends Migration
             $table->string('name')->comment('栏目名称');
             $table->bigInteger('parent_id')->nullable(false)->comment('父ID');
             $table->string('url',100)->nullable(false)->comment('链接');
+            $table->string('image',255)->nullable(false)->comment('栏目图片');
+            $table->string('summary',100)->nullable(false)->comment('栏目简介');
             $table->unsignedInteger('level')->comment('等级');
             $table->string('path')->comment('路径');
             $table->enum('is_category',[0,1])->default('1')->comment('是否是分类');

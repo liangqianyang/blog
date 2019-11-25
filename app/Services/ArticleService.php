@@ -18,9 +18,10 @@ class ArticleService
      * 根据分类获取文章列表
      * @param int $category_id 分类ID
      * @param array $columns 要展示的列
+     * @param int $limit 显示的条数
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|null
      */
-    public function getArticleByCategory(int $category_id, array $columns)
+    public function getArticleByCategory(int $category_id, array $columns,int $limit=5)
     {
         try {
             $cate_info = Category::query()->where('id', $category_id)->first();
@@ -31,13 +32,13 @@ class ArticleService
                     ->select($columns)
                     ->whereIn('cid', $childrens)->orWhere('cid', $category_id)->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')
-                    ->orderBy('comments', 'desc')->get();
+                    ->orderBy('comments', 'desc')->limit($limit)->get();
             } else {
                 $articles = Article::query()
                     ->select($columns)
                     ->where('cid', $category_id)->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')
-                    ->orderBy('comments', 'desc')->get();
+                    ->orderBy('comments', 'desc')->limit($limit)->get();
             }
 
             return $articles;

@@ -8,6 +8,7 @@
 
 namespace App\Handlers;
 
+use App\Services\AliOssService;
 use  Illuminate\Support\Str;
 
 class ImageUploadHandler
@@ -49,12 +50,44 @@ class ImageUploadHandler
 
         if ($is_absolute_path) {
             return [
-                'path' => getcwd().'/storage' . "/$folder_name/$filename"
+                'path' => getcwd() . '/storage' . "/$folder_name/$filename"
             ];
         } else {
             return [
                 'path' => env('APP_URL') . '/storage' . "/$folder_name/$filename"
             ];
+        }
+    }
+
+    /**
+     * 上传到阿里云oss
+     * @param $file
+     * @param $folder
+     * @return array|bool
+     */
+    public function uploadToAli($file, $folder)
+    {
+        //获取文件名
+        $filename = $_FILES['file']['name'];
+        //获取文件临时路径
+        $file_path = $file['tmp_name'];
+        $image_info = getimagesize($file_path);//图片宽高等信息
+        $width = $image_info[0];
+        $height = $image_info[1];
+        $type = $image_info[2];
+        $file_info = pathinfo($filename);//文件信息
+        //获取文件的后缀名
+        $ext_suffix = $file_info['extension'];
+        //判断上传的文件是否在允许的范围内（后缀）==>白名单判断
+        if (!in_array($ext_suffix, $this->allowed_ext)) {
+            return ['code' => 1001,'message' => '上传的文件类型只能是jpg,gif,jpeg,png'];
+        }
+        $material = new AliOssService();
+        $result = $material->upload($folder, $file);
+        if ($result) {
+            return ['code' => 0, 'file' => $result, 'width' => $width, 'height' => $height, 'type' => $type, 'message' => 'success'];
+        } else {
+            return false;
         }
     }
 

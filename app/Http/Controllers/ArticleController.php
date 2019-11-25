@@ -35,7 +35,7 @@ class ArticleController extends Controller
     {
         $category_id = $request->input('category_id');
         $columns = ['id', 'cover', 'title', 'summary'];
-        $articles = $this->articleService->getArticleByCategory($category_id, $columns);
+        $articles = $this->articleService->getArticleByCategory($category_id, $columns,5);
         $data = [];
         if ($articles) {
             $data['list'] = $articles;
@@ -46,6 +46,9 @@ class ArticleController extends Controller
 
     public function list(Request $request)
     {
+        $cid = $request->input('cid');
+        $columns = ['id', 'cover', 'title', 'summary'];
+        $articles = $this->articleService->getArticleByCategory($cid, $columns,12);
 
     }
 
