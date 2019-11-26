@@ -1,21 +1,19 @@
 @extends('layouts.app')
-@section('title',$category->name)
+@section('title',$label->title)
 @section('keywords','枫叶个人博客,枫叶,博客,技术,PHP,JAVA,HTML')
 @section('description','枫叶个人博客,记录点滴生活')
 @section('content')
     <article>
         <!--lbox begin-->
         <div class="lbox">
-            <div class="whitebg lanmu"><img src="{{$category->image}}">
-                <h1>{{$category->name}}</h1>
-                <p>{{$category->summary}}</p>
-            </div>
             <div class="whitebg bloglist">
-                <h2 class="htitle">最新博文</h2>
+                <h2 class="htitle"><span class="con_nav">您现在的位置是：<a href="/">网站首页</a>><a
+                            href="javascript:;">标签信息列表></a><span>{{$label->title}}</span></span>{{$label->title}}
+                </h2>
                 <ul>
-                    @foreach ($articles as $item)
-                        @if($item->is_top===1)
-                            <!--置顶设计-->
+                @foreach ($articles as $item)
+                    @if($item->is_top===1)
+                        <!--置顶设计-->
                             @if($item->cover)
                                 <li>
                                     <h3 class="blogtitle"><a href="{{ route('article.show', ['id'=>$item->id]) }}"

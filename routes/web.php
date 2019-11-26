@@ -21,8 +21,10 @@ Route::get('about.html', 'IndexController@about')->name('about');
 Route::get('daohang.html', 'IndexController@daohang')->name('daohang');
 Route::get('message.html', 'IndexController@message')->name('message');
 Route::get('notice/{notice}.html', 'NoticeController@show')->name('notice.show');//网站公告详情
-Route::get('article/category_id.html', 'ArticleController@getArticleByCategory')->name('article.category');//根据分类获取文章
-Route::get('blog.html', 'ArticleController@blog')->name('article.blog');//个人博客列表
+Route::get('blog/category/{category_id}.html', 'ArticleController@blog')->name('article.blog');//个人博客列表
+Route::get('article/category.html', 'ArticleController@getArticleByCategory')->name('article.category');//根据分类获取文章
+Route::get('article/category/{category_id}.html', 'ArticleController@list')->name('article.list');//文章列表(分页)
+Route::get('article/label/{label_id}.html', 'ArticleController@labels')->name('article.labels');//根据标签获取文章列表(分页)
 Route::get('article/{id}.html', 'ArticleController@show')->name('article.show');//文章详情
 Route::post('article/likes.html', 'ArticleController@likes')->name('article.likes');//文章点赞
 Route::get('article/captcha', 'ArticleController@captcha')->name('article.captcha');//文章评论验证码

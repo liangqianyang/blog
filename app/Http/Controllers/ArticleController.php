@@ -12,6 +12,7 @@ use App\Models\Article;
 use App\Models\ArticleLabel;
 use App\Models\Category;
 use App\Models\Comments;
+use App\Models\Label;
 use App\Services\ArticleService;
 use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
@@ -45,24 +46,53 @@ class ArticleController extends Controller
         return $data;
     }
 
+    /**
+     * 个人博客列表
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     */
     public function blog(Request $request)
     {
-        $cid = $request->input('cid');
-        $category = Category::select(['id','name','image','summary'])->find($cid);
-        $columns = ['id','cid', 'cover', 'title', 'summary','is_top','created_at'];
+        $cid = $request->route('category_id');
+        $limit = 12;
+        $category = Category::select(['id', 'name', 'image', 'summary'])->find($cid);
+        $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
         $count = $this->articleService->getArticlesCountByCategory(null);
-        $articles = $this->articleService->getArticleByCategory(null, $columns, 12);
+        $articles = $this->articleService->getPaginateArticleByCategory(null, $columns, $limit);
+        return view('article.blog', ['category' => $category, 'count' => $count, 'articles' => $articles]);
+    }
+
+    /**
+     * 文章列表
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     */
+    public function list(Request $request)
+    {
+        $cid = $request->route('category_id');
+        $limit = 12;
+        $category = Category::select(['id', 'name', 'image', 'summary'])->find($cid);
+        $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
+        $count = $this->articleService->getArticlesCountByCategory($cid);
+        $articles = $this->articleService->getPaginateArticleByCategory($cid, $columns, $limit);
+
         return view('article.list', ['category' => $category, 'count' => $count, 'articles' => $articles]);
     }
 
-    public function list(Request $request)
+    /**
+     * 根据标签获取文章的分页列表
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     */
+    public function labels(Request $request)
     {
-        $cid = $request->input('cid');
-        $category = Category::select(['id','name','image','summary'])->find($cid);
-        $columns = ['id', 'cover', 'title', 'summary','is_top','created_at'];
-        $count = $this->articleService->getArticlesCountByCategory($cid);
-        $articles = $this->articleService->getArticleByCategory($cid, $columns, 12);
-        return view('article.list', ['category' => $category, 'count' => $count, 'articles' => $articles]);
+        $label_id = $request->route('label_id');
+        $label = Label::select(['id', 'title'])->find($label_id);
+        $limit = 12;
+        $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
+        $count = $this->articleService->getArticlesCountByLabel($label_id);
+        $articles = $this->articleService->getPaginateArticleByLabel($label_id, $columns, $limit);
+        return view('article.labels', ['label' => $label, 'count' => $count, 'articles' => $articles]);
     }
 
     /**
@@ -94,7 +124,8 @@ class ArticleController extends Controller
             })->orWhere('cid', $category_id)->orderBy('clicks', 'desc')->orderBy('comments', 'desc')->get();
 
         $comments = Comments::query()->where('article_id', $id)->orderBy('created_at', 'desc')->get();
-        return view('article.show', ['article' => $article, 'prev' => $prev, 'next' => $next, 'relates' => $relates, 'comments' => $comments]);
+        $url = $request->url();//文章的链接
+        return view('article.show', ['url'=>$url,'article' => $article, 'prev' => $prev, 'next' => $next, 'relates' => $relates, 'comments' => $comments]);
     }
 
     /**

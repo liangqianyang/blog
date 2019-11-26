@@ -1,23 +1,35 @@
 @extends('layouts.app')
-@section('title','文章详情')
-@section('keywords','文章详情')
-@section('description','文章详情')
+@section('title',$article->seo_title)
+@section('keywords',$article->seo_keywords)
+@section('description',$article->seo_description)
 @section('content')
     <article>
         <!--lbox begin-->
         <div class="lbox">
             <div class="content_box whitebg">
                 <h2 class="htitle"><span class="con_nav">您现在的位置是：<a href="/">网站首页</a>><a
-                            href="/">{{$article->categories->get(0)->name}}</a></span>{{$article->categories->get(0)->name}}
+                            href="{{ route('article.list', ['category_id'=>$article->categories->id]) }}">{{$article->categories->name}}</a></span>{{$article->categories->name}}
                 </h2>
                 <h1 class="con_tilte">{{$article->title}}</h1>
                 <p class="bloginfo"><i class="avatar"><img
                             src="/home/images/lqy.jpg"></i><span>枫叶</span><span>{{$article->created_at}}</span><span>【<a
-                            href="/">{{$article->categories->get(0)->name}}</a>】</span><span>{{$article->clicks}}
+                            href="{{ route('article.list', ['category_id'=>$article->categories->id]) }}">{{$article->categories->name}}</a>】</span><span>{{$article->clicks}}
                         人已围观</span></p>
                 <p class="con_info"><b>简介</b>{{$article->summary}}</p>
                 <div class="con_text">
                     {!! $article->content !!}
+                    <p>Tags：
+                        @for($i=0;$i<count($article->labels);$i++)
+                            @if($i==count($article->labels)-1)
+                                <a href="{{ route('article.labels', ['id'=>$article->labels->get($i)->id]) }}"
+                                   target="_blank">{{$article->labels->get($i)->title}}</a>
+                            @else
+                                <a href="{{ route('article.labels', ['id'=>$article->labels->get($i)->id]) }}"
+                                   target="_blank">{{$article->labels->get($i)->title}}</a> &nbsp;
+                            @endif
+                        @endfor
+                    </p>
+                    <p class="share"><b>转载：</b>感谢您对该篇文章的青睐，非常欢迎各位朋友分享到个人站长或者朋友圈，但转载请说明文章出处“来源枫叶个人博客”。<a href="{{$url}}" target="_blank">{{$url}}</a></p>
                     <p><span class="diggit" onclick="likes({{$article->id}})"><span>❤</span> 很赞哦！ <span
                                 id="likes">({{$article->likes}})</span></span>
                     </p>

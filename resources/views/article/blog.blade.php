@@ -13,9 +13,9 @@
             <div class="whitebg bloglist">
                 <h2 class="htitle">最新博文</h2>
                 <ul>
+                    <!--置顶设计-->
                     @foreach ($articles as $item)
                         @if($item->is_top===1)
-                            <!--置顶设计-->
                             @if($item->cover)
                                 <li>
                                     <h3 class="blogtitle"><a href="{{ route('article.show', ['id'=>$item->id]) }}"
