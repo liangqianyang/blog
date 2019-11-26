@@ -22,6 +22,7 @@ Route::get('daohang.html', 'IndexController@daohang')->name('daohang');
 Route::get('message.html', 'IndexController@message')->name('message');
 Route::get('notice/{notice}.html', 'NoticeController@show')->name('notice.show');//网站公告详情
 Route::get('article/category_id.html', 'ArticleController@getArticleByCategory')->name('article.category');//根据分类获取文章
+Route::get('blog.html', 'ArticleController@blog')->name('article.blog');//个人博客列表
 Route::get('article/{id}.html', 'ArticleController@show')->name('article.show');//文章详情
 Route::post('article/likes.html', 'ArticleController@likes')->name('article.likes');//文章点赞
 Route::get('article/captcha', 'ArticleController@captcha')->name('article.captcha');//文章评论验证码

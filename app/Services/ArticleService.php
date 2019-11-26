@@ -15,31 +15,70 @@ class ArticleService
 {
 
     /**
+     * 根据文章分类获取文章的条数
+     * @param  $category_id 分类ID
+     * @return int
+     */
+    public function getArticlesCountByCategory($category_id = null)
+    {
+        try {
+            if (!empty($category_id)) {
+                $cate_info = Category::query()->where('id', $category_id)->first();
+                if ($cate_info->level === 0) {
+                    //获取所有子分类的id
+                    $childrens = Category::query()->where('parent_id', $category_id)->pluck('id');
+                    $count = Article::query()->whereIn('cid', $childrens)->orWhere('cid', $category_id)
+                        ->where('status', '0')
+                        ->orderBy('is_top', 'desc')
+                        ->count();
+                } else {
+                    $count = Article::query()->where('status', '0')->orderBy('is_top', 'desc')->count();
+                }
+            } else {
+                $count = Article::query()->count();
+            }
+
+            return $count;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
      * 根据分类获取文章列表
-     * @param int $category_id 分类ID
+     * @param $category_id 分类ID
      * @param array $columns 要展示的列
      * @param int $limit 显示的条数
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|null
      */
-    public function getArticleByCategory(int $category_id, array $columns,int $limit=5)
+    public function getArticleByCategory($category_id = null, array $columns, int $limit = 5)
     {
         try {
-            $cate_info = Category::query()->where('id', $category_id)->first();
-            if ($cate_info->level === 0) {
-                //获取所有子分类的id
-                $childrens = Category::query()->where('parent_id', $category_id)->pluck('id');
-                $articles = Article::query()
-                    ->select($columns)
-                    ->whereIn('cid', $childrens)->orWhere('cid', $category_id)->orderBy('is_top', 'desc')
-                    ->orderBy('likes', 'desc')
-                    ->orderBy('comments', 'desc')->limit($limit)->get();
+            if (!empty($category_id)) {
+                $cate_info = Category::query()->where('id', $category_id)->first();
+                if ($cate_info->level === 0) {
+                    //获取所有子分类的id
+                    $childrens = Category::query()->where('parent_id', $category_id)->pluck('id');
+                    $articles = Article::query()
+                        ->select($columns)
+                        ->whereIn('cid', $childrens)->orWhere('cid', $category_id)->where('status', '0')
+                        ->orderBy('is_top', 'desc')
+                        ->orderBy('likes', 'desc')
+                        ->orderBy('comments', 'desc')->limit($limit)->get();
+                } else {
+                    $articles = Article::query()
+                        ->select($columns)
+                        ->where('cid', $category_id)->where('status', '0')->orderBy('is_top', 'desc')
+                        ->orderBy('likes', 'desc')
+                        ->orderBy('comments', 'desc')->limit($limit)->get();
+                }
             } else {
-                $articles = Article::query()
-                    ->select($columns)
-                    ->where('cid', $category_id)->orderBy('is_top', 'desc')
+                $articles = Article::query()->with('categories:id,name')
+                    ->select($columns)->where('status', '0')->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')
                     ->orderBy('comments', 'desc')->limit($limit)->get();
             }
+
 
             return $articles;
         } catch (\Exception $e) {

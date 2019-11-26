@@ -61,8 +61,8 @@ class ImageUploadHandler
 
     /**
      * 上传到阿里云oss
-     * @param $folder
-     * @param $file
+     * @param string $folder
+     * @param File $file
      * @return array|bool
      */
     public function uploadToAli($folder,$file)

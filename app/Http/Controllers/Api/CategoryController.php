@@ -103,6 +103,7 @@ class CategoryController extends Controller
         $data->summary = $params['summary'];
         $data->parent_id = $params['parent_id'];
         $data->sort = $params['sort'];
+        $data->is_category = $params['is_category'];
 
         $validator = Validator::make($params, [
             'name' => ['required', Rule::unique('categories')->ignore($data->id)],

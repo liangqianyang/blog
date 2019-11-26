@@ -30,7 +30,7 @@ class Article extends Model
      */
     public function categories()
     {
-        return $this->hasMany(Category::class, 'id', 'cid');
+        return $this->belongsTo(Category::class, 'cid', 'id');
     }
 
     /**

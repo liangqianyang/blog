@@ -10,6 +10,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ArticleLabel;
+use App\Models\Category;
 use App\Models\Comments;
 use App\Services\ArticleService;
 use Gregwar\Captcha\CaptchaBuilder;
@@ -35,7 +36,7 @@ class ArticleController extends Controller
     {
         $category_id = $request->input('category_id');
         $columns = ['id', 'cover', 'title', 'summary'];
-        $articles = $this->articleService->getArticleByCategory($category_id, $columns,5);
+        $articles = $this->articleService->getArticleByCategory($category_id, $columns, 5);
         $data = [];
         if ($articles) {
             $data['list'] = $articles;
@@ -44,12 +45,24 @@ class ArticleController extends Controller
         return $data;
     }
 
+    public function blog(Request $request)
+    {
+        $cid = $request->input('cid');
+        $category = Category::select(['id','name','image','summary'])->find($cid);
+        $columns = ['id','cid', 'cover', 'title', 'summary','is_top','created_at'];
+        $count = $this->articleService->getArticlesCountByCategory(null);
+        $articles = $this->articleService->getArticleByCategory(null, $columns, 12);
+        return view('article.list', ['category' => $category, 'count' => $count, 'articles' => $articles]);
+    }
+
     public function list(Request $request)
     {
         $cid = $request->input('cid');
-        $columns = ['id', 'cover', 'title', 'summary'];
-        $articles = $this->articleService->getArticleByCategory($cid, $columns,12);
-
+        $category = Category::select(['id','name','image','summary'])->find($cid);
+        $columns = ['id', 'cover', 'title', 'summary','is_top','created_at'];
+        $count = $this->articleService->getArticlesCountByCategory($cid);
+        $articles = $this->articleService->getArticleByCategory($cid, $columns, 12);
+        return view('article.list', ['category' => $category, 'count' => $count, 'articles' => $articles]);
     }
 
     /**
