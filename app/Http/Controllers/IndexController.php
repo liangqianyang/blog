@@ -17,6 +17,10 @@ class IndexController extends Controller
         $this->articleService = $articleService;
     }
 
+    /**
+     * 网站首页
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     */
     public function root()
     {
         //获取banner
