@@ -53,10 +53,11 @@ class IndexController extends Controller
         $limit = 9;
         $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
         $articles = $this->articleService->getPaginateArticleByCategory(null, $columns, $limit);
+
         return view('index.index',
             ['is_root' => 1, 'banners' => $banners, 'top_articles' => $top_articles,
-                'labels' => $labels,
-                'categories' => $categories, 'special_articles' => $special_articles, 'articles' => $articles, 'tab' => $tab]);
+                'labels' => $labels,'categories' => $categories, 'special_articles' => $special_articles,
+                'articles' => $articles, 'tab' => $tab]);
     }
 
     public function info()
