@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Page;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Blade::directive('datetime', function ($expression) {
+            return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
+        });
+
         //获取导航
         $navs = Category::query()->where('level', 0)->orderBy('sort', 'asc')
             ->select('id', 'name', 'url', 'is_category')->get();

@@ -1,10 +1,10 @@
 <header id="header">
     <div class="navbox">
         <h2 id="mnavh"><span class="navicon"></span></h2>
-        <div class="logo"><a href="/index.html">枫叶个人博客</a></div>
+        <div class="logo"><a href="/">枫叶个人博客</a></div>
         <nav>
             <ul id="starlist">
-                <li><a href="/index.html">首页</a></li>
+                <li><a href="/">首页</a></li>
                 @foreach ($navs as $nav)
                     <li><a href="{{$nav->url}}">
                             {{$nav->name}}</a>

@@ -423,3 +423,7 @@ span.ecommentauthor { color: #b5b5b5; font-size: 14px; margin-bottom: 5px; displ
 .gbook .fb:nth-child(8n) ul { background: url(../images/tx/tx3.jpg) no-repeat top 20px left 10px; }
 .gbook .fb:first-child ul { background: url(../images/tx/tx2.jpg) no-repeat top 20px left 10px; }
 .gbook .fb:last-child ul { background: url(../images/tx/tx1.jpg) no-repeat top 20px left 10px; }
+
+/*留言*/
+.important {color: #ff2222}
+img#captcha{ display: inline-block; }

@@ -7,6 +7,8 @@
  */
 
 use App\Models\SysLog;
+use Gregwar\Captcha\CaptchaBuilder;
+use Gregwar\Captcha\PhraseBuilder;
 
 /**
  * 将当前请求的路由名称转换为CSS类名称
@@ -16,6 +18,30 @@ function route_class()
 {
     return str_replace('.', '-', Route::currentRouteName());
 }
+
+/**
+ * 生成验证码
+ * @param string $key session_key
+ * @param string $str 字符串源
+ * @param int $length 长度
+ * @param int $width  宽度
+ * @param int $height 高度
+ */
+function captcha(string $key,string $str='0123456789',int $length=4, int $width = 100, int $height = 30)
+{
+    $phraseBuilder = new PhraseBuilder($length, $str);
+    $builder = new CaptchaBuilder(null, $phraseBuilder);
+    $captcha = $builder->build($width, $height);
+    // 获取验证码的内容
+    $phrase = $captcha->getPhrase();
+    // 把内容存入session
+    session()->put($key, $phrase);
+    // 生成图片
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Content-Type:image/jpeg');
+    $builder->output();
+}
+
 
 /**
  * 根据数组中的某个键值大小进行排序，仅支持二维数组
@@ -29,14 +55,14 @@ function array_sort_by_key(array $array, $key, $asc = true)
 {
     $result = array();
     // 整理出准备排序的数组
-    foreach ( $array as $k => &$v ) {
+    foreach ($array as $k => &$v) {
         $values[$k] = isset($v[$key]) ? $v[$key] : '';
     }
     unset($v);
     // 对需要排序键值进行排序
     $asc ? asort($values) : arsort($values);
     // 重新排列原有数组
-    foreach ( $values as $k => $v ) {
+    foreach ($values as $k => $v) {
         $result[$k] = $array[$k];
     }
 
@@ -48,7 +74,8 @@ function array_sort_by_key(array $array, $key, $asc = true)
  * @param $img_file
  * @return string
  */
-function image_to_base64($img_file) {
+function image_to_base64($img_file)
+{
 
     $img_base64 = '';
     if (file_exists($img_file)) {
@@ -60,11 +87,14 @@ function image_to_base64($img_file) {
             $content = fread($fp, $filesize);
             $file_content = chunk_split(base64_encode($content)); // base64编码
             switch ($img_info[2]) {           //判读图片类型
-                case 1: $img_type = "gif";
+                case 1:
+                    $img_type = "gif";
                     break;
-                case 2: $img_type = "jpg";
+                case 2:
+                    $img_type = "jpg";
                     break;
-                case 3: $img_type = "png";
+                case 3:
+                    $img_type = "png";
                     break;
             }
             $img_base64 = 'data:image/' . $img_type . ';base64,' . $file_content;//合成图片的base64编码

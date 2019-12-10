@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Banner;
 use App\Models\Category;
@@ -26,7 +27,7 @@ class IndexController extends Controller
         //获取banner
         $banners = Banner::query()->orderBy('sort', 'asc')->get();
         //头部展示文章
-        $top_articles = Article::query()->select(['id','title','cover'])->where('status', '0')->orderBy('likes', 'desc')->limit(2)->get();
+        $top_articles = Article::query()->select(['id', 'title', 'cover'])->where('status', '0')->orderBy('likes', 'desc')->limit(2)->get();
         //获取分类列表
         $categories = Category::query()->where('is_category', 1)->where('level', 0)->orderBy('sort')->get();
         $tab = [];
@@ -56,48 +57,24 @@ class IndexController extends Controller
 
         return view('index.index',
             ['is_root' => 1, 'banners' => $banners, 'top_articles' => $top_articles,
-                'labels' => $labels,'categories' => $categories, 'special_articles' => $special_articles,
+                'labels' => $labels, 'categories' => $categories, 'special_articles' => $special_articles,
                 'articles' => $articles, 'tab' => $tab]);
     }
 
-    public function info()
+    /**
+     * 搜索列表
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function search(Request $request)
     {
-        return view('index.info');
+        $keyword = $request->input('keyword');
+        $limit = 12;
+        $articles = null;
+        if ($keyword) {
+            $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
+            $articles = Article::query()->where('status', '0')->where('title', 'like', "%" . $keyword . "%")->select($columns)->paginate($limit);
+        }
+        return view('index.search', ['articles' => $articles]);
     }
-
-    public function list()
-    {
-        return view('index.list');
-    }
-
-    public function list2()
-    {
-        return view('index.list2');
-    }
-
-    public function list3()
-    {
-        return view('index.list3');
-    }
-
-    public function time()
-    {
-        return view('index.time');
-    }
-
-    public function about()
-    {
-        return view('index.about');
-    }
-
-    public function daohang()
-    {
-        return view('index.daohang');
-    }
-
-    public function message()
-    {
-        return view('index.message');
-    }
-
 }
