@@ -91,8 +91,9 @@ class ArticleController extends Controller
 
     /**
      * 创建文章
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return mixed
+     * @throws \Exception
      */
     public function store(Request $request)
     {
@@ -148,10 +149,11 @@ class ArticleController extends Controller
 
     /**
      * 更新文章
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param Article $article
      * @param ArticleLabel $articleLabel
      * @return mixed
+     * @throws \Exception
      */
     public function update(Request $request, Article $article, ArticleLabel $articleLabel)
     {
@@ -220,11 +222,13 @@ class ArticleController extends Controller
         }
     }
 
+
     /**
      * 置顶文章
      * @param Request $request
      * @param Article $articleModel
      * @return mixed
+     * @throws \Exception
      */
     public function top(Request $request, Article $articleModel)
     {
@@ -250,11 +254,13 @@ class ArticleController extends Controller
         }
     }
 
+
     /**
      * 上架文章
      * @param Request $request
      * @param Article $articleModel
      * @return mixed
+     * @throws \Exception
      */
     public function up(Request $request, Article $articleModel)
     {

@@ -45,7 +45,8 @@ class AppServiceProvider extends ServiceProvider
         $pages = Page::query()->orderBy('sort', 'asc')->select('id', 'title', 'url')->get();
         View::share('navs', $navs);
         View::share('pages', $pages);
-
+        //首页个人简介
+        \View::composer(['layouts._card'], \App\Http\ViewComposers\CardComposer::class);
         //网站通知
         \View::composer(['layouts._notice'], \App\Http\ViewComposers\NoticeComposer::class);
         //点击排行榜
@@ -56,7 +57,8 @@ class AppServiceProvider extends ServiceProvider
         \View::composer(['layouts._tags'], \App\Http\ViewComposers\TagsComposers::class);
         //猜你喜欢
         \View::composer(['layouts._likes'], \App\Http\ViewComposers\LikesComposers::class);
-
+        //关于我
+        \View::composer(['about.index'], \App\Http\ViewComposers\CardComposer::class);
         //统计文章数量
         $article_count = Article::where('status','0')->count();
         //统计文章评论数量,不包含下架的文章

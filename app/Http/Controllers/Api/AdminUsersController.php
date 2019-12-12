@@ -86,6 +86,9 @@ class AdminUsersController extends Controller
                 $adminUsersService = new AdminUsersService($token);
                 $user_id = $admin_token->user_id;
                 $admin_user_role_info = $adminUsersService->getUserRoleInfo($user_id);//获取用户的基础信息
+                if($admin_user_role_info['skills']){
+                    $admin_user_role_info['skills'] = json_decode($admin_user_role_info['skills']);
+                }
                 return $this->response->array(['code' => 0, 'data' => $admin_user_role_info, 'message' => 'success']);
             } else {
                 return $this->response->array(['code' => 50014, 'message' => 'token已过期请重新登陆']);
@@ -100,6 +103,7 @@ class AdminUsersController extends Controller
      * 保存管理员信息
      * @param Request $request
      * @return mixed
+     * @throws \Exception
      */
     public function store(Request $request)
     {
@@ -149,6 +153,7 @@ class AdminUsersController extends Controller
      * @param Request $request
      * @param AdminUser $adminUser
      * @return mixed
+     * @throws \Exception
      */
     public function update(Request $request, AdminUser $adminUser)
     {
@@ -173,6 +178,14 @@ class AdminUsersController extends Controller
             'avatar' => $params['avatar'],
             'email' => $params['email'],
             'phone' => $params['phone'],
+            'en_name' => $params['en_name'],
+            'cn_name' => $params['cn_name'],
+            'nickname' => $params['nickname'],
+            'profession' => $params['profession'],
+            'skills' => $params['skills'],
+            'address' => $params['address'],
+            'summary' => $params['summary'],
+            'description' => $params['description'],
             'status' => $params['status'],
         ];
 
@@ -204,10 +217,50 @@ class AdminUsersController extends Controller
     }
 
     /**
+     * 更新管理员个人中心的信息
+     * @param Request $request
+     * @param AdminUser $adminUser
+     * @return mixed
+     * @throws \Exception
+     */
+    public function updateCenter(Request $request, AdminUser $adminUser){
+        $params = $request->all();
+
+        $validator =  Validator::make($params,[
+            'id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->array(['code' => 1001, 'type' => 'error', 'message' => $validator->errors()]);
+        }
+        DB::beginTransaction();
+        $flag = true;
+        $data = [
+            'id' => $params['id'],
+            'en_name' => $params['en_name'],
+            'cn_name' => $params['cn_name'],
+            'nickname' => $params['nickname'],
+            'profession' => $params['profession'],
+            'address' => $params['address'],
+            'summary' => $params['summary'],
+            'description' => $params['description'],
+        ];
+        $result = $adminUser->where('id', $params['id'])->update($data);
+        if ($flag) {
+            DB::commit();
+            writeLog($request, '更新管理员个人中心的信息', $params, '0');
+            return $this->response->array(['code' => 0, 'type' => 'success', 'data' => $result, 'message' => '更新成功']);
+        } else {
+            DB::rollBack();
+            return $this->response->array(['code' => 1002, 'type' => 'error', 'message' => '更新失败']);
+        }
+    }
+    /**
      * 删除管理员信息
      * @param Request $request
      * @param AdminUser $adminUser
      * @return mixed
+     * @throws \Exception
      */
     public function destroy(Request $request, AdminUser $adminUser)
     {

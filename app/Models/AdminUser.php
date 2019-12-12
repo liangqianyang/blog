@@ -20,7 +20,8 @@ class AdminUser extends Model
      * @var array
      */
     protected $fillable = [
-        'username','real_name','avatar', 'email', 'password', 'phone','status','create_user_id'
+        'username','real_name','avatar', 'email', 'password', 'phone','status','create_user_id',
+        'en_name','cn_name','nickname','profession','skills','address','summary','description'
     ];
 
     /**

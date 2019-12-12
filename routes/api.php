@@ -22,9 +22,9 @@ $api->version('v1', [
     $api->post('login', 'LoginController@login')->name('api.login');//登陆
     $api->get('logout', 'LoginController@logout')->name('api.logout');//退出登陆
     $api->post('user/avatar', 'AdminUsersController@uploadAvatar')->name('api.user.avatar');//上传用户头像
-    $api->post('article/upload', 'ArticleController@upload')->name('api.article.upload');//上传图片
+    $api->post('article/upload', 'ArticleController@upload')->name('api.article.upload');//上传文章图片(上传到本地)
     $api->post('banner/upload', 'BannerController@upload')->name('api.banner.upload');//上传Banner图片
-    $api->post('material/upload', 'MaterialController@upload')->name('api.material.upload');//上传素材图片
+    $api->post('material/upload', 'MaterialController@upload')->name('api.material.upload');//上传素材图片(上传到ali oss)
     $api->group(['middleware' => 'hasToken'], function ($api) {
         $api->get('nav', 'AdminMenusController@getNav')->name('api.nav');//导航菜单
         $api->get('admin/user', 'AdminUsersController@getUserInfo')->name('api.admin.user');//获取管理员信息
@@ -47,6 +47,7 @@ $api->version('v1', [
             $api->get('user', 'AdminUsersController@list')->name('api.user.list');//管理员列表
             $api->post('user', 'AdminUsersController@store')->name('api.user.store');//保存管理员信息
             $api->put('user', 'AdminUsersController@update')->name('api.user.update');//更新管理员信息
+            $api->put('user/center', 'AdminUsersController@updateCenter')->name('api.user.center');//更新管理员个人中心的信息
             $api->delete('user', 'AdminUsersController@destroy')->name('api.user.destroy');//删除管理员信息
             $api->get('category', 'CategoryController@list')->name('api.category.list');//分类列表
             $api->post('category', 'CategoryController@store')->name('api.category.store');//保存分类信息
@@ -80,6 +81,9 @@ $api->version('v1', [
             $api->post('page', 'PageController@store')->name('api.page.store');//保存单页信息
             $api->put('page', 'PageController@update')->name('api.page.update');//更新单页信息
             $api->delete('page', 'PageController@destroy')->name('api.page.destroy');//删除单页
+            $api->get('message', 'MessageController@list')->name('api.message.list');//留言列表
+            $api->delete('message', 'MessageController@destroy')->name('api.message.destroy');//删除留言
+            $api->post('message/reply', 'MessageController@reply')->name('api.message.reply');//回复留言
         });
     });
 

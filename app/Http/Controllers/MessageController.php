@@ -35,7 +35,7 @@ class MessageController extends Controller
         if ($captcha == session()->get('MESSAGE_CAPTCHA_IMG')) {
             $content = $request->post('content');
             $data['username'] = $username;
-            $data['avatar'] = $avatar;
+            $data['avatar'] = env("APP_URL") . $avatar;
             $data['content'] = $content;
             Message::create($data);
             return ['code' => 0, 'message' => '留言成功'];
