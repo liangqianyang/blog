@@ -34,6 +34,15 @@ class MaterialController extends Controller
         return $this->response->array(['code' => 0, 'data' => $data, 'total' => $total, 'message' => 'success']);
     }
 
+    /**
+     * 获取所有的素材图片
+     * @return mixed
+     */
+    public function getAllMaterial()
+    {
+        $data = Material::query()->select('id', 'title', 'url', 'width', 'height', 'type')->orderBy('created_at', 'desc')->get();
+        return $this->response->array(['code' => 0, 'data' => $data, 'message' => 'success']);
+    }
 
     /**
      * 上传图片
@@ -46,7 +55,7 @@ class MaterialController extends Controller
         if ($file) {
             $image_upload_handler = new ImageUploadHandler();
             $folder = "material";//目录名
-            $result = $image_upload_handler->uploadToAli($folder,$file);
+            $result = $image_upload_handler->uploadToAli($folder, $file);
             if ($result['code'] === 0) {
                 return $this->response->array($result);
             } else {
