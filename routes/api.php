@@ -69,6 +69,7 @@ $api->version('v1', [
             $api->put('banner', 'BannerController@update')->name('api.banner.update');//更新轮播信息
             $api->delete('banner', 'BannerController@destroy')->name('api.banner.destroy');//删除轮播
             $api->get('material', 'MaterialController@list')->name('api.material.list');//素材列表
+            $api->get('material/enable', 'MaterialController@list')->name('api.material.enable');//可用的素材列表
             $api->post('material', 'MaterialController@store')->name('api.material.store');//保存素材信息
             $api->put('material', 'MaterialController@update')->name('api.material.update');//更新素材信息
             $api->delete('material', 'MaterialController@destroy')->name('api.material.destroy');//删除素材
