@@ -8,6 +8,7 @@ use App\Models\Page;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
+use Elasticsearch\ClientBuilder as ESClientBuilder;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,19 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment() !== 'production') {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
+
+        // 注册一个名为 es 的单例
+        $this->app->singleton('es', function () {
+            // 从配置文件读取 Elasticsearch 服务器列表
+            $builder = ESClientBuilder::create()->setHosts(config('database.elasticsearch.hosts'));
+            // 如果是开发环境
+            if (app()->environment() === 'local') {
+                // 配置日志，Elasticsearch 的请求和返回数据将打印到日志文件中，方便我们调试
+                $builder->setLogger(app('log')->driver());
+            }
+
+            return $builder->build();
+        });
     }
 
     /**
@@ -60,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
         //关于我
         \View::composer(['about.index'], \App\Http\ViewComposers\CardComposer::class);
         //统计文章数量
-        $article_count = Article::where('status','0')->count();
+        $article_count = Article::where('status', '0')->count();
         //统计文章评论数量,不包含下架的文章
         $article_comments = Article::query()->sum('comments');
         View::share('article_count', $article_count);

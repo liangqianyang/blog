@@ -162,6 +162,8 @@
                         @endif
                     @endforeach
                 </ul>
+                <!--pagelist-->
+                {{$articles->links()}}
             </div>
             <!--bloglist end-->
         </div>
