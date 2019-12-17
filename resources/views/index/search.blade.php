@@ -77,7 +77,7 @@
                             @endif
                         @endforeach
                                 <!--pagelist-->
-                                    {{$articles->links()}}
+                                    {{$articles->appends(['keyword' => $keyword])->links()}}
                                     @else
                                         <p>暂无数据</p>
                     @endif

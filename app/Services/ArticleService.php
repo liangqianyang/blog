@@ -29,13 +29,14 @@ class ArticleService
                     $childrens = Category::query()->where('parent_id', $category_id)->pluck('id');
                     $count = Article::query()->whereIn('cid', $childrens)->orWhere('cid', $category_id)
                         ->where('status', '0')
+                        ->where('publish_date','<=',date('Y-m-d H:i:s', time()))
                         ->orderBy('is_top', 'desc')
                         ->count();
                 } else {
-                    $count = Article::query()->where('cid', $category_id)->where('status', '0')->count();
+                    $count = Article::query()->where('cid', $category_id)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))->count();
                 }
             } else {
-                $count = Article::query()->where('status', '0')->count();
+                $count = Article::query()->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))->count();
             }
 
             return $count;
@@ -54,7 +55,7 @@ class ArticleService
         try {
             $count = Article::query()->whereHas('labels', function ($query) use ($label_id) {
                 $query->where('labels.id', '=', $label_id);
-            })->where('status', '0')->count();
+            })->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))->count();
             return $count;
         } catch (\Exception $e) {
             return 0;
@@ -79,6 +80,7 @@ class ArticleService
                     $articles = Article::query()
                         ->select($columns)
                         ->whereIn('cid', $childrens)->orWhere('cid', $category_id)->where('status', '0')
+                        ->where('publish_date','<=',date('Y-m-d H:i:s', time()))
                         ->orderBy('is_top', 'desc')->orderBy('likes', 'desc')
                         ->orderBy('comments', 'desc')
                         ->orderBy('created_at', 'desc')
@@ -86,14 +88,16 @@ class ArticleService
                 } else {
                     $articles = Article::query()
                         ->select($columns)
-                        ->where('cid', $category_id)->where('status', '0')->orderBy('is_top', 'desc')
+                        ->where('cid', $category_id)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
+                        ->orderBy('is_top', 'desc')
                         ->orderBy('likes', 'desc')->orderBy('comments', 'desc')
                         ->orderBy('created_at', 'desc')
                         ->limit($limit)->get();
                 }
             } else {
                 $articles = Article::query()->with('categories:id,name')
-                    ->select($columns)->where('status', '0')->orderBy('is_top', 'desc')
+                    ->select($columns)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
+                    ->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')->orderBy('comments', 'desc')
                     ->orderBy('created_at', 'desc')
                     ->limit($limit)->get();
@@ -123,19 +127,22 @@ class ArticleService
                     $articles = Article::query()->with('categories:id,name')
                         ->select($columns)
                         ->whereIn('cid', $childrens)->orWhere('cid', $category_id)->where('status', '0')
+                        ->where('publish_date','<=',date('Y-m-d H:i:s', time()))
                         ->orderBy('is_top', 'desc')->orderBy('likes', 'desc')
                         ->orderBy('comments', 'desc')
                         ->orderBy('created_at', 'desc')->paginate($limit);
                 } else {
                     $articles = Article::query()->with('categories:id,name')
                         ->select($columns)
-                        ->where('cid', $category_id)->where('status', '0')->orderBy('is_top', 'desc')
+                        ->where('cid', $category_id)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
+                        ->orderBy('is_top', 'desc')
                         ->orderBy('likes', 'desc')->orderBy('comments', 'desc')
                         ->orderBy('created_at', 'desc')->paginate($limit);
                 }
             } else {
                 $articles = Article::query()->with('categories:id,name')
-                    ->select($columns)->where('status', '0')->orderBy('is_top', 'desc')
+                    ->select($columns)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
+                    ->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')->orderBy('comments', 'desc')
                     ->orderBy('created_at', 'desc')->paginate($limit);
             }
@@ -161,13 +168,14 @@ class ArticleService
                     ->whereHas('labels', function ($query) use ($label_id) {
                         $query->where('labels.id', '=', $label_id);
                     })
-                    ->where('status', '0')
+                    ->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
                     ->orderBy('is_top', 'desc')->orderBy('likes', 'desc')
                     ->orderBy('comments', 'desc')
                     ->orderBy('created_at', 'desc')->limit($limit)->get();
             } else {
                 $articles = Article::query()->with('categories:id,name')
-                    ->select($columns)->where('status', '0')->orderBy('is_top', 'desc')
+                    ->select($columns)->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
+                    ->orderBy('is_top', 'desc')
                     ->orderBy('likes', 'desc')->orderBy('comments', 'desc')
                     ->orderBy('created_at', 'desc')->limit($limit)->get($limit);
             }
@@ -191,7 +199,7 @@ class ArticleService
                 ->whereHas('labels', function ($query) use ($label_id) {
                     $query->where('labels.id', '=', $label_id);
                 })
-                ->where('status', '0')
+                ->where('status', '0')->where('publish_date','<=',date('Y-m-d H:i:s', time()))
                 ->orderBy('is_top', 'desc')->orderBy('likes', 'desc')
                 ->orderBy('comments', 'desc')
                 ->orderBy('created_at', 'desc')->paginate($limit);

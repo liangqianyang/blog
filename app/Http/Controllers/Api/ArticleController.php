@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Handlers\ImageUploadHandler;
+use App\Jobs\DeleteArticle;
+use App\Jobs\SyncOneArticleToES;
 use App\Models\Article;
 use App\Models\ArticleLabel;
-use App\Models\Category;
 use App\Services\AdminUsersService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Validator;
-use Qiniu\Auth;
-use Qiniu\Storage\UploadManager;
 
 class ArticleController extends Controller
 {
@@ -137,6 +137,15 @@ class ArticleController extends Controller
 
         if ($flag) {
             DB::commit();
+            try {
+                $es_result = Article::query()->with('categories:id,name')
+                    ->with('labels:labels.id,title')->find($article->id);
+                //同步到es
+                $es_result = $es_result->toESArray();
+                $this->dispatch(new SyncOneArticleToES($es_result));
+            } catch (\Exception $e) {
+                Log::error("文章同步到ES失败,原因:" . $e->getMessage());
+            }
             unset($params['content']);
             writeLog($request, '新增文章', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
@@ -213,6 +222,15 @@ class ArticleController extends Controller
 
         if ($flag) {
             DB::commit();
+            try {
+                $es_result = Article::query()->with('categories:id,name')
+                    ->with('labels:labels.id,title')->find($info->id);
+                //同步到es
+                $es_result = $es_result->toESArray();
+                $this->dispatch(new SyncOneArticleToES($es_result));
+            } catch (\Exception $e) {
+                Log::error("更新文章同步到ES失败,原因:" . $e->getMessage());
+            }
             unset($params['content']);
             writeLog($request, '更新文章', $params, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '保存成功']);
@@ -246,6 +264,24 @@ class ArticleController extends Controller
 
         if ($flag) {
             DB::commit();
+            try {
+                //修改原先置顶的数据
+                $top_es_result = Article::query()->with('categories:id,name')
+                    ->with('labels:labels.id,title')->find($topArticle->id);
+                //同步到es
+                $top_es_result = $top_es_result->toESArray();
+                $this->dispatch(new SyncOneArticleToES($top_es_result));
+
+                //修改新的置顶数据
+                $new_top_es_result = Article::query()->with('categories:id,name')
+                    ->with('labels:labels.id,title')->find($id);
+                //同步到es
+                $new_top_es_result = $new_top_es_result->toESArray();
+                $this->dispatch(new SyncOneArticleToES($new_top_es_result));
+
+            } catch (\Exception $e) {
+                Log::error("更新文章同步到ES失败,原因:" . $e->getMessage());
+            }
             writeLog($request, '置顶文章', $id, '0');
             return $this->response->array(['code' => 0, 'type' => 'success', 'message' => '置顶成功']);
         } else {
@@ -270,6 +306,15 @@ class ArticleController extends Controller
         if (isset($ids)) {
             foreach ($ids as $id) {
                 $result = $articleModel->where('id', $id)->update(['status' => '0']);
+                try {
+                    $es_result = Article::query()->with('categories:id,name')
+                        ->with('labels:labels.id,title')->find($id);
+                    //同步到es
+                    $es_result = $es_result->toESArray();
+                    $this->dispatch(new SyncOneArticleToES($es_result));
+                } catch (\Exception $e) {
+                    Log::error("更新文章同步到ES失败,原因:" . $e->getMessage());
+                }
                 if (!$result) {
                     $flag = false;
                     break;
@@ -293,6 +338,7 @@ class ArticleController extends Controller
      * @param Request $request
      * @param Article $articleModel
      * @return mixed
+     * @throws \Exception
      */
     public function down(Request $request, Article $articleModel)
     {
@@ -302,6 +348,15 @@ class ArticleController extends Controller
         if (isset($ids)) {
             foreach ($ids as $id) {
                 $result = $articleModel->where('id', $id)->update(['status' => '9']);
+                try {
+                    $es_result = Article::query()->with('categories:id,name')
+                        ->with('labels:labels.id,title')->find($id);
+                    //同步到es
+                    $es_result = $es_result->toESArray();
+                    $this->dispatch(new SyncOneArticleToES($es_result));
+                } catch (\Exception $e) {
+                    Log::error("更新文章同步到ES失败,原因:" . $e->getMessage());
+                }
                 if (!$result) {
                     $flag = false;
                     break;
@@ -324,6 +379,7 @@ class ArticleController extends Controller
      * @param Request $request
      * @param Article $articleModel
      * @return mixed
+     * @throws \Exception
      */
     public function destroy(Request $request, Article $articleModel)
     {
@@ -333,13 +389,16 @@ class ArticleController extends Controller
             DB::beginTransaction();
             foreach ($ids as $id) {
                 $result = $articleModel->where('id', $id)->delete();
+                try {
+                    $this->dispatch(new DeleteArticle($id));
+                } catch (\Exception $e) {
+                    Log::error("删除文章同步到ES失败,原因:" . $e->getMessage());
+                }
                 if (!$result) {
                     $flag = false;
                     break;
                 }
-
             }
-
             if ($flag) {
                 DB::commit();
                 writeLog($request, '删除文章', $ids, '0');

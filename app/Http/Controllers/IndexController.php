@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\SearchBuilders\ArticleSearchBuilder;
 use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Label;
 use App\Services\ArticleService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class IndexController extends Controller
 {
@@ -22,7 +24,7 @@ class IndexController extends Controller
      * 网站首页
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
      */
-    public function root()
+    public function root(Request $request)
     {
         //获取banner
         $banners = Banner::query()->orderBy('sort', 'asc')->get();
@@ -50,7 +52,6 @@ class IndexController extends Controller
             $special_articles = $articleService->getArticleByLabel(null, $columns, 6);
         }
 
-        //获取文章列表
         $limit = 9;
         $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
         $articles = $this->articleService->getPaginateArticleByCategory(null, $columns, $limit);
@@ -68,13 +69,43 @@ class IndexController extends Controller
      */
     public function search(Request $request)
     {
-        $keyword = $request->input('keyword');
-        $limit = 12;
+        $keyword = htmlspecialchars($request->input('keyword'));
+        //获取文章列表
+        $page = $request->input('page', 1);
+        $perPage = 12;
         $articles = null;
+        $pager = null;
         if ($keyword) {
+            // 新建查询构造器对象，设置只搜索上架文章，设置分页
+            $builder = (new ArticleSearchBuilder())->status('0')->paginate($perPage, $page);
+            $keywords = array_filter(explode(' ', $keyword));
+            $builder->keywords($keywords);
+            // 调用查询构造器的分面搜索
+            $builder->aggregateProperties();
+            $builder->orderBy('is_top', 'desc');
+            $builder->orderBy('likes', 'desc');
+            $builder->orderBy('comments', 'desc');
+            $result = app('es')->search($builder->getParams());
+
             $columns = ['id', 'cid', 'cover', 'title', 'summary', 'is_top', 'created_at'];
-            $articles = Article::query()->where('status', '0')->where('title', 'like', "%" . $keyword . "%")->select($columns)->paginate($limit);
+
+            // 通过 collect 函数将返回结果转为集合，并通过集合的 pluck 方法取到返回的文章 ID 数组
+            $articlesIds = collect($result['hits']['hits'])->pluck('_id')->all();
+
+            // 通过 whereIn 方法从数据库中读取文章数据
+            $articles = Article::query()
+                ->select($columns)
+                ->whereIn('id', $articlesIds)
+                // orderByRaw 可以让我们用原生的 SQL 来给查询结果排序
+                ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $articlesIds)))
+                ->get();
+
+            // 返回一个 LengthAwarePaginator 对象
+            $pager = new LengthAwarePaginator($articles, $result['hits']['total'], $perPage, $page, [
+                'path' => route('search', false), // 手动构建分页的 url
+            ]);
+
         }
-        return view('index.search', ['articles' => $articles]);
+        return view('index.search', ['articles' => $pager, 'keyword' => $keyword]);
     }
 }

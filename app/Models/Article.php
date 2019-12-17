@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class Article extends Model
 {
@@ -55,5 +56,28 @@ class Article extends Model
     public function comments()
     {
         return $this->hasMany(Comments::class, 'id', 'article_id');
+    }
+
+    public function toESArray()
+    {
+        // 只取出需要的字段
+        $arr = Arr::only($this->toArray(), [
+            'id',
+            'c_id',
+            'categories',
+            'labels',
+            'title',
+            'summary',
+            'content',
+            'status',
+            'clicks',
+            'likes',
+            'comments',
+            'is_top',
+            'publish_date',
+        ]);
+        // strip_tags 函数可以将 html 标签去除
+        $arr['content'] = strip_tags($this->content);
+        return $arr;
     }
 }

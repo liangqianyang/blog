@@ -13,6 +13,7 @@ use App\Models\ArticleLabel;
 use App\Models\Category;
 use App\Models\Comments;
 use App\Models\Label;
+use App\SearchBuilders\ArticleSearchBuilder;
 use App\Services\ArticleService;
 use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
@@ -98,7 +99,7 @@ class ArticleController extends Controller
     /**
      * 显示文章详情
      * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|
      */
     public function show(Request $request)
     {
@@ -112,16 +113,26 @@ class ArticleController extends Controller
         //下一篇
         $next = Article::query()->select('id', 'title')->where('id', '>', $id)->orderBy('id', 'asc')->limit(1)->first();
 
-        $category_id = $article->cid;
-        $labels = ArticleLabel::query()->where('a_id', $id)->pluck('label_id');//获取文章所属标签
-        //获取相关文章
-        $relates = Article::query()->with('labels:labels.id as lid ,title')
-            ->select('id', 'title')
-            ->whereHas('labels', function ($query) use ($labels) {
-                if ($labels) {
-                    $query->whereIn('labels.id', $labels);
-                }
-            })->orWhere('cid', $category_id)->orderBy('clicks', 'desc')->orderBy('comments', 'desc')->get();
+        //相关文章
+        $title = $article->title;//文章标题
+        $builder = (new ArticleSearchBuilder())->status('0');
+        $keywords = array_filter(explode(' ', $title));
+        $builder->keywords($keywords);
+        $builder->aggregateProperties();
+        $builder->orderBy('is_top', 'desc');
+        $builder->orderBy('likes', 'desc');
+        $builder->orderBy('comments', 'desc');
+        $result = app('es')->search($builder->getParams());
+        // 通过 collect 函数将返回结果转为集合，并通过集合的 pluck 方法取到返回的文章 ID 数组
+        $articlesIds = collect($result['hits']['hits'])->pluck('_id')->all();
+        // 通过 whereIn 方法从数据库中读取文章数据
+        $relates = Article::query()
+            ->select('id','title')
+            ->whereIn('id', $articlesIds)
+            // orderByRaw 可以让我们用原生的 SQL 来给查询结果排序
+            ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $articlesIds)))
+            ->get();
+        //相关文章
 
         $comments = Comments::query()->where('article_id', $id)->orderBy('created_at', 'desc')->get();
         $url = $request->url();//文章的链接
