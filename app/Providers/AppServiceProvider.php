@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Page;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Blade;
 use Elasticsearch\ClientBuilder as ESClientBuilder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+use Laravel\Horizon\Horizon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,8 +44,12 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Request $request)
     {
+        Horizon::auth(function ($request) {
+           return true;
+        });
+
         Blade::directive('datetime', function ($expression) {
             return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
         });
