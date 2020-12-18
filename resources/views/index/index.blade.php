@@ -56,18 +56,22 @@
                     <div class="newsitem">
                         <div class="newspic">
                             <ul>
-                                @foreach ($tab['pic'] as $item)
-                                    <li><a href="{{ route('article.show', ['id'=>$item->id]) }}"><img
-                                                src="{{$item->cover}}"><span>{{$item->title}}</span></a></li>
-                                @endforeach
+                                @if(isset($tab['pic']))
+                                    @foreach ($tab['pic'] as $item)
+                                        <li><a href="{{ route('article.show', ['id'=>$item->id]) }}"><img
+                                                    src="{{$item->cover}}"><span>{{$item->title}}</span></a></li>
+                                    @endforeach
+                                @endif
                             </ul>
                         </div>
                         <ul class="newslist">
-                            @foreach ($tab['list'] as $item)
-                                <li><i></i><a href="{{ route('article.show', ['id'=>$item->id]) }}">{{$item->title}}</a>
-                                    <p>{{$item->summary}}</p>
-                                </li>
-                            @endforeach
+                            @if(isset($tab['list']))
+                                @foreach ($tab['list'] as $item)
+                                    <li><i></i><a href="{{ route('article.show', ['id'=>$item->id]) }}">{{$item->title}}</a>
+                                        <p>{{$item->summary}}</p>
+                                    </li>
+                                @endforeach
+                            @endif
                         </ul>
                     </div>
                 </div>

@@ -75,10 +75,8 @@ class Migrate extends Command
             'index' => $aliasName . '_0',
             'body' => [
                 'mappings' => [
-                    '_doc' => [
-                        // 调用索引类的 getProperties() 方法获取索引字段
-                        'properties' => $indexClass::getProperties(),
-                    ],
+                    // 调用索引类的 getProperties() 方法获取索引字段
+                    'properties' => $indexClass::getProperties(),
                 ],
                 'aliases' => [
                     // 同时创建别名
@@ -101,9 +99,7 @@ class Migrate extends Command
             'index' => $aliasName,
             'type' => '_doc',
             'body' => [
-                '_doc' => [
-                    'properties' => $indexClass::getProperties(),
-                ],
+                'properties' => $indexClass::getProperties(),
             ],
         ]);
         // 重新打开索引
@@ -129,9 +125,7 @@ class Migrate extends Command
             'index' => $newIndexName,
             'body' => [
                 'mappings' => [
-                    '_doc' => [
-                        'properties' => $indexClass::getProperties(),
-                    ],
+                    'properties' => $indexClass::getProperties(),
                 ],
             ],
         ]);

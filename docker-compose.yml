@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:1.18
+    container_name: lqy_blog_nginx
+    ports:
+      - 8081:80
+    volumes:
+      - /www/blog:/var/www/html/:rw
+      - /www/blog/docker/nginx:/etc/nginx/conf.d/:rw
+    restart: always
+  php:
+    image: php:74
+    container_name: lqy_blog_php
+    ports:
+      - 9004:9000
+    volumes:
+      - /www/blog:/var/www/html/:rw
+      - /www/blog/docker/php/php.ini:/usr/local/etc/php/php.ini:ro
+    cap_add:
+      - SYS_PTRACE
+    restart: always
+
