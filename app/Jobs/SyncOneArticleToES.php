@@ -35,7 +35,6 @@ class SyncOneArticleToES implements ShouldQueue
         $data = $this->article;
         app('es')->index([
             'index' => 'articles',
-            'type' => '_doc',
             'id' => $data['id'],
             'body' => $data,
         ]);

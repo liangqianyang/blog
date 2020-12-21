@@ -34,7 +34,6 @@ class DeleteArticle implements ShouldQueue
     {
         $params = [
             'index' => 'articles',
-            'type' => '_doc',
             'id' => $this->id,
         ];
         app('es')->delete($params);
