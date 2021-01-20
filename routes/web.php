@@ -14,7 +14,7 @@ Route::get('/', 'IndexController@root');
 Route::get('index.html', 'IndexController@root');//首页
 Route::get('search.html', 'IndexController@search')->name('search');//搜索列表页
 Route::get('time.html', 'TimeController@index')->name('time');//时间轴
-Route::get('daohang.html', 'IndexController@daohang')->name('daohang');//友情链接
+Route::get('links.html', 'IndexController@daohang')->name('daohang');//友情链接
 Route::get('message.html', 'MessageController@index')->name('message');//留言
 Route::get('message/captcha', 'MessageController@captcha')->name('message.captcha');//留言验证码
 Route::post('message/leaving.html', 'MessageController@message')->name('message.leaving');//留言提交
