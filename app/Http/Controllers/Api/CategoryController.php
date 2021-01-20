@@ -46,10 +46,10 @@ class CategoryController extends Controller
      */
     public function getEnableCategory()
     {
-        $category = Category::query()->select('id', 'parent_id', 'name')->where('is_category', 1)->orderBy('level', 'asc')->get()->toArray();
+        $category = Category::select('id', 'parent_id', 'name')->where('is_category', '=', '1')->orderBy('level', 'asc')->get()->toArray();
         $category = list_to_tree($category);
         $category = array_values($category);
-        return $this->response->array(['code' => 0, 'data' => $category, 'message' => 'success']);
+        return $this->response->array(['code' => 0, 'data' => $category, 'message' => 'success1']);
     }
 
     /**

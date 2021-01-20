@@ -33,7 +33,7 @@ class IndexController extends Controller
         //获取分类列表
         $categories = Category::query()->where('is_category', 1)->where('level', 0)->orderBy('sort')->get();
         $tab = [];
-        if (count($categories)>0) {
+        if (count($categories) > 0) {
             $articleService = new ArticleService();
             $category_id = $categories->get(0)->id;
             $columns = ['id', 'cover', 'title', 'summary'];
@@ -44,7 +44,7 @@ class IndexController extends Controller
             }
         }
         //获取标签列表
-        $labels = Label::query()->where('is_special', 1)->get();
+        $labels = Label::query()->where('is_special', '=', '1')->get();
         $special_articles = [];//特殊专题的文章
         if ($labels) {
             $articleService = new ArticleService();

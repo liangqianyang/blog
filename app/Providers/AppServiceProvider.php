@@ -25,6 +25,19 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
+        //需要时打开
+        if (env('APP_DEBUG') == true) {
+            \DB::listen(function ($query) {
+                $sql = $query->sql;
+                $bindings = $query->bindings;
+                $time = $query->time;
+                $sql = str_replace("?", "'%s'", $sql);
+                $log = @vsprintf($sql, $bindings);
+                logger()->info($log);
+                logger()->info('SQL执行时间:' . $time . 'ms');
+            });
+        }
+
         // 注册一个名为 es 的单例
         $this->app->singleton('es', function () {
             // 从配置文件读取 Elasticsearch 服务器列表
