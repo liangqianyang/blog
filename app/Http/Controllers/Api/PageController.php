@@ -83,6 +83,7 @@ class PageController extends Controller
         $data['id'] = $params['id'];
         $data['title'] = $params['title'];
         $data['url'] = $params['url'];
+        $data['sort'] = $params['sort'];
         $flag = $page->where('id', $params['id'])->update($data);//更新单页
         if ($flag) {
             writeLog($request, '更新单页', $params, '0');
