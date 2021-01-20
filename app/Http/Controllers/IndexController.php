@@ -38,7 +38,7 @@ class IndexController extends Controller
             $category_id = $categories->get(0)->id;
             $columns = ['id', 'cover', 'title', 'summary'];
             $articles = $articleService->getArticleByCategory($category_id, $columns, 5);
-            if ($articles) {
+            if (!empty($articles)) {
                 $tab['list'] = $articles;
                 $tab['pic'] = $articles->random(2);
             }
