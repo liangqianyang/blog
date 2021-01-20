@@ -31,7 +31,7 @@ class IndexController extends Controller
         //头部展示文章
         $top_articles = Article::query()->select(['id', 'title', 'cover'])->where('status', '0')->orderBy('likes', 'desc')->limit(2)->get();
         //获取分类列表
-        $categories = Category::query()->where('is_category', '1')->where('level', 0)->orderBy('sort')->get();
+        $categories = Category::query()->where('is_category', '=','1')->where('level', 0)->orderBy('sort')->get();
         $tab = [];
         if (count($categories) > 0) {
             $articleService = new ArticleService();
