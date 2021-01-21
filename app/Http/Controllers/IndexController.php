@@ -101,7 +101,7 @@ class IndexController extends Controller
                 ->get();
 
             // 返回一个 LengthAwarePaginator 对象
-            $pager = new LengthAwarePaginator($articles, $result['hits']['total'], $perPage, $page, [
+            $pager = new LengthAwarePaginator($articles, $result['hits']['total']['value'], $perPage, $page, [
                 'path' => route('search', false), // 手动构建分页的 url
             ]);
 
