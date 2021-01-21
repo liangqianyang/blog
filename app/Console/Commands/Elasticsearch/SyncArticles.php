@@ -52,13 +52,14 @@ class SyncArticles extends Command
                 $req = ['body' => []];
                 // 遍历商品
                 foreach ($articles as $article) {
-                    // 将商品模型转为 Elasticsearch 所用的数组
+                    // 将文章模型转为 Elasticsearch 所用的数组
                     $data = $article->toESArray();
 
                     $req['body'][] = [
                         'index' => [
                             // 从参数中读取索引名称
                             '_index' => $this->option('index'),
+                            '_type'  => '_doc',
                             '_id' => $data['id'],
                         ],
                     ];

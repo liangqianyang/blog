@@ -37,6 +37,7 @@ class SyncOneArticleToES implements ShouldQueue
             'index' => 'articles',
             'id' => $data['id'],
             'body' => $data,
+            'type' => '_doc',
         ]);
     }
 }
