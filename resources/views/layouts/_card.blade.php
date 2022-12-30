@@ -1,5 +1,5 @@
 <div class="card">
-    <h2>我的名片</h2>
+    <h2>我的名片1</h2>
     <p>网名：{{$info['en_name']}} | {{$info['cn_name']}}</p>
     <p>职业：{{$info['profession']}}</p>
     <p>现居：{{$info['address']}}</p>
